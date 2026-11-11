@@ -1,0 +1,137 @@
+# growth-marketing-agent
+
+> 🚧 v0.1 en construcción · Proyecto construido sesión a sesión, con cada decisión registrada en [docs/decisiones.md](docs/decisiones.md). · Repo 2 del portafolio (el 1 es `credit-risk-agent-lab`).
+
+- **Fecha de inicio:** 2026-11-10
+- **Estado:** En curso (modo guiado: Neider decide y escribe las decisiones; Claude arma el esqueleto y explica)
+
+## Pregunta de negocio (decisión 001)
+
+¿Se puede, **solo con datos públicos**, construir un sistema que diga **dónde poner el presupuesto de marketing**, es decir qué canal, qué cliente y qué campaña generan **valor incremental** y no solo conversiones, y que un **agente de IA "analista de growth"** responda preguntas de negocio y proponga campañas con su impacto estimado?
+
+## Base conceptual
+
+Los temas salen de la ruta de aprendizaje **Paid Media** (`learning/rutas/paid-media`): el plan de 10 semanas (Columbia, Wharton) y el catálogo de modelos. Cada sesión toma un bloque de la ruta y lo aterriza en el dataset público que mejor lo resuelve.
+
+## Datos
+
+Ningún dataset público trae a la vez embudo, recompra, experimentos y gasto por canal. Por eso cada parte del lab usa la fuente con señal real para esa pregunta (revisión del 2026-11-10).
+
+| Dataset | Para qué | Tamaño | Licencia |
+|---|---|---|---|
+| [Olist E-Commerce](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce) + [Marketing Funnel](https://www.kaggle.com/datasets/olistbr/marketing-funnel-olist) | **Captación**: embudo de leads con canal de origen, de lead a vendedor que vende | 99.441 pedidos · 8.000 leads · 842 cerrados | CC BY-NC-SA 4.0 |
+| [The Complete Journey](https://cran.r-project.org/package=completejourney) (84.51° / dunnhumby) | **Retención y campañas**: hogares que recompran, campañas dirigidas, cupones y canjes, promociones | 2.469 hogares · 1,47 M transacciones · 27 campañas | Paquete CC0; datos de dunnhumby solo para uso no comercial, sin redistribuir |
+| [Hillstrom MineThatData](https://blog.minethatdata.com/2008/03/minethatdata-e-mail-analytics-and-data.html) | **Experimentos y uplift**: e-mail aleatorizado en 3 brazos | 64.000 clientes | Uso libre en investigación |
+| [Lenta](https://www.uplift-modeling.com/en/latest/api/datasets/fetch_lenta.html) (vía scikit-uplift) | **Uplift a escala**: SMS aleatorizado con 193 variables, chequeo de robustez | 687.029 clientes | Datos de competencia, uso en investigación |
+| [Synthetic attribution benchmark](https://huggingface.co/datasets/lucianfialho/synthetic-attribution-benchmark) | **Atribución**: recorridos multitoque con la atribución Shapley verdadera y costo por toque | 500.000 recorridos | CC BY 4.0 |
+| MMM sintético (sesión 10) | **Presupuesto**: gasto endógeno por canal con efecto verdadero conocido, al estilo de Heusch (2026) | por generar | se genera en el repo |
+
+Primeros hechos (`python -m growth_lab.ingest`):
+
+- **Olist, compradores:** solo el 3,0% de 93.358 compradores recompra, así que el CLV del comprador se trabaja con Complete Journey.
+- **Olist, embudo:** la conversión de lead a contrato va del 3% (e-mail) al 12,3% (búsqueda pagada). De 842 vendedores cerrados, 380 venden en la ventana.
+- **Complete Journey:** el 98,7% de los hogares vuelve (mediana de 43 canastas al año). 1.559 de los 2.469 hogares recibieron al menos una campaña (tipo A, B o C): hay tratados y no tratados, pero sin aleatorizar.
+- **Hillstrom:** el e-mail de hombres lleva la conversión de 0,57% a 1,25%. **Lenta:** el SMS lleva la respuesta de 10,3% a 11,0%.
+- **Atribución:** 6,0% de los recorridos convierte, con 2,7 toques en promedio. Los canales se llaman igual que en el embudo de Olist (paid_search, social, email…), así que su costo por toque sirve para suponer el CAC por canal.
+
+## Hoja de ruta (tentativa)
+
+| Sesión | Tema (bloque de la ruta) | Técnicas del catálogo | Datos |
+|---|---|---|---|
+| 1 ✅ | Entorno, datos y pregunta de negocio (decisión 001: ciclo completo) | Ingesta a Parquet, DuckDB en memoria, panorama de fuentes (notebook 01) | Todas |
+| 2 | Inteligencia de mercado: embudo y cohortes | Embudo por etapa, cohortes, AOV, conversión por canal | Olist |
+| 3 | Segmentación del cliente | RFM, K-means / GMM, perfiles accionables | Complete Journey |
+| 4 | Lead scoring y calidad del lead | Logística vs. gradient boosting, lift por deciles, SHAP, propensión × valor, CAC por canal | Olist |
+| 5 | Valor del cliente | CLV (BG/NBD + Gamma-Gamma), supervivencia, churn | Complete Journey |
+| 6 | Experimentos | A/B con tamaño de muestra, CUPED, prueba secuencial y bayesiana | Hillstrom |
+| 7 | Uplift | S/T/X-learner, causal forest, curva Qini, asignación con presupuesto | Hillstrom + Lenta |
+| 8 | Efecto de campañas y cupones | Causalidad observacional: diferencias en diferencias, matching, DML, placebo | Complete Journey |
+| 9 | Atribución multitoque | Último clic, lineal, Markov y Shapley contra la verdad conocida | Benchmark de atribución |
+| 10 | Marketing Mix Modeling | MMM bayesiano (adstock, saturación), optimización de presupuesto | MMM sintético |
+| 11 | Agente "analista de growth" | LangGraph: text-to-SQL sobre DuckDB + modelos como herramientas + aprobación humana del presupuesto | Todas |
+| 12 | Operación | Servidor MCP, registro de ejecuciones, evals (casos dorados, juez) | Todas |
+| 13 | Caso de consultoría | Recomendación de presupuesto, demo, README final, release v1.0.0 | Todas |
+
+```mermaid
+flowchart LR
+    O["Olist<br/>embudo por canal"] --> A["Captación<br/>embudo · lead scoring · CAC"]
+    CJ["Complete Journey<br/>hogares · campañas · cupones"] --> R["Retención<br/>RFM · CLV · efecto de campañas"]
+    H["Hillstrom + Lenta<br/>experimentos"] --> E["A/B · uplift"]
+    AT["Benchmark de atribución"] --> M["Atribución<br/>Markov · Shapley"]
+    MM["MMM sintético"] --> P["Presupuesto<br/>MMM · optimización"]
+    A & R & E & M & P --> DB[("DuckDB")]
+    DB --> AG["Agente analista de growth<br/>SQL + modelos como herramientas"]
+    AG --> HU{"Humano aprueba<br/>presupuesto"}
+```
+
+## Cómo reproducirlo
+
+Requiere Python 3.12 o superior y un token de Kaggle. Las descargas pesan unos 330 MB.
+
+```bash
+python -m venv .venv && .venv\Scripts\activate
+pip install -r requirements.txt && pip install -e .
+pytest                           # corre sin descargar nada: usa data/processed/
+```
+
+Para regenerar todo desde las fuentes (unos 330 MB de descargas):
+
+```bash
+# Olist (Kaggle)
+kaggle datasets download olistbr/brazilian-ecommerce -p data/raw/olist --unzip
+kaggle datasets download olistbr/marketing-funnel-olist -p data/raw/olist --unzip
+
+# The Complete Journey (archivos R del paquete completejourney)
+for f in campaign_descriptions.rda campaigns.rda coupon_redemptions.rda coupons.rda demographics.rda products.rda promotions.rds transactions.rds; do
+  curl -L -o data/raw/completejourney/$f https://github.com/bradleyboehmke/completejourney/raw/master/data/$f
+done
+
+# Hillstrom y Lenta
+curl -L -o data/raw/hillstrom/hillstrom.csv http://www.minethatdata.com/Kevin_Hillstrom_MineThatData_E-MailAnalytics_DataMiningChallenge_2008.03.20.csv
+curl -L -o data/raw/lenta/lenta_dataset.csv.gz https://sklift.s3.eu-west-2.amazonaws.com/lenta_dataset.csv.gz
+
+# Benchmark de atribución (Hugging Face)
+for f in journeys.parquet touchpoints.parquet ground_truth.json README.md; do
+  curl -L -o data/raw/atribucion/$f https://huggingface.co/datasets/lucianfialho/synthetic-attribution-benchmark/resolve/main/$f
+done
+
+python -m growth_lab.ingest      # 23 Parquet (zstd) en data/interim/, 233 MB
+python -m growth_lab.publicar    # 14 Parquet publicables en data/processed/, 33 MB
+```
+
+**Todo vive en Parquet**, sin una base de datos aparte: `growth_lab.db.conectar()` abre DuckDB en memoria con una vista por archivo. Las tablas de Olist van sin prefijo, las de Complete Journey con `cj_` y las de atribución con `attr_`.
+
+```python
+from growth_lab import db
+con = db.conectar(db.PROCESSED)          # lo publicado; db.conectar() lee data/interim
+db.consultar(con, "SELECT origin, count(*) AS leads FROM marketing_qualified_leads GROUP BY 1")
+```
+
+`db.consultar()` es la puerta del agente: solo acepta una sentencia `SELECT` y la conexión solo puede leer su carpeta.
+
+### Datos publicados en el repo (`data/processed/`)
+
+| Tablas | Fuente y licencia | Qué se quitó |
+|---|---|---|
+| `orders`, `order_items`, `order_payments`, `customers`, `sellers`, `products`, `marketing_qualified_leads`, `closed_deals`, `order_reviews`, `geolocation` | Olist, CC BY-NC-SA 4.0 | Texto libre de reseñas; geolocalización agregada por estado |
+| `hillstrom` | MineThatData | — |
+| `attr_journeys`, `attr_touchpoints` | Benchmark de atribución, CC BY 4.0 | — |
+
+Complete Journey y Lenta no se publican por licencia: solo sus agregados y resultados.
+
+## Estructura
+
+```
+data/raw/          crudos descargados (no se suben)
+data/interim/      Parquet de todas las fuentes (no se suben)
+data/processed/    Parquet publicados: fuentes con licencia abierta + derivados de cada sesión
+docs/              decisiones.md, imágenes
+notebooks/         un notebook por sesión, con mis conclusiones
+src/growth_lab/    código del pipeline, modelos y agente
+tests/             pruebas que no necesitan datos
+```
+
+## Bitácora
+
+- 2026-11-10: inicio. Datos de Olist y Hillstrom ingeridos, hoja de ruta tomada de la ruta Paid Media, decisión 001 planteada.
+- 2026-11-10: revisión de datasets. Se suman Complete Journey (retención y campañas), Lenta (uplift a escala) y el benchmark de atribución. El MMM usará un generador propio porque el benchmark de Heusch (2026) no publica sus datos.

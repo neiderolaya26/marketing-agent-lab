@@ -1,0 +1,18 @@
+[project]
+name = "growth-marketing-agent"
+version = "0.1.0"
+description = "Analítica de marketing de punta a punta con datos públicos (Olist, Hillstrom): embudo, segmentación, lead scoring, CLV, experimentos, uplift, MMM y un agente analista de growth."
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.12"
+authors = [{ name = "Neider Olaya" }]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]

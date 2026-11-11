@@ -1,0 +1,11 @@
+# Versiones exactas con las que se construye y prueba el proyecto (Python 3.14).
+# Se agregan librerías en cada sesión (modelos, causalidad, MMM, agente).
+pandas==3.1.0
+pyarrow==26.0.0
+numpy==2.5.4
+duckdb==2.0.0
+matplotlib==3.11.2
+jupyterlab==4.6.5
+kaggle==2.2.5
+pytest==9.2.0
+pyreadr==0.5.9

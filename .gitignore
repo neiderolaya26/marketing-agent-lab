@@ -1,0 +1,26 @@
+# Datos: el crudo y los intermedios no se suben (se descargan con los comandos del README).
+# Sí se sube data/processed/ (derivados sin texto libre ni ubicación fina).
+data/raw/
+data/interim/
+data/agente/
+*.zip
+*.gz
+*.duckdb
+*.duckdb.wal
+
+# Secretos
+.env
+.env.*
+kaggle.json
+access_token
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+.pytest_cache/
+
+# Modelos entrenados
+modelos/
+*.egg-info/
