@@ -21,3 +21,18 @@ Cada decisión importante del proyecto queda aquí, **escrita por Neider**: qué
 - **Métrica de éxito:** valor incremental por dólar invertido (ROI incremental) en cada palanca: canal de captación, campaña de retención y canal de medios. Cada sesión reporta su pieza en esa unidad o deja claro por qué no se puede.
 - **Datos en el repo:** todo en Parquet (zstd). Se publican en `data/processed/` las fuentes con licencia que lo permite (Olist sin texto libre ni geolocalización fina, Hillstrom, benchmark de atribución) y los derivados de cada sesión. De Complete Journey y Lenta solo se publican agregados.
 - **Por qué (en mis palabras):** "hagamos el ciclo completo, end to end, la gracia es tener muy enriquecido el lab en git" _(Neider puede ampliarlo)_.
+
+---
+
+## 002 — Valor de un lead: ventana y definición
+
+- **Fecha:** 2026-11-10
+- **Contexto** (`notebooks/02_embudo_cohortes.ipynb`, `python -m growth_lab.embudo`):
+  - Valor de un lead = P(cierre) × GMV medio de los contratos **maduros** en sus primeros N días. Un contrato está maduro si `won_date + N` cae antes del último pedido (29-ago-2018); si no, no entra al promedio para no castigar a los canales que cerraron tarde.
+  - Con **90 días**: búsqueda pagada 63 BRL por lead (IC 90% [40; 94]), referidos 54 [12; 110], orgánica 52 [29; 83], tráfico directo 21 [11; 31], e-mail 14 [0; 39] y social 13 [6; 21]. Pagada y orgánica no se distinguen entre sí, pero ambas superan con claridad a social y directo.
+  - **El orden cambia con la ventana:** a 180 días la orgánica (132) supera a la pagada (82), pero con solo 67 y 39 contratos maduros. A 60 días están empatadas (37 y 39).
+  - El canal `unknown` vale 137 BRL por lead (IC [41; 293]). Probablemente son leads que llegaron por el equipo comercial sin canal registrado; no se puede invertir en él.
+  - GMV = `price` de los ítems sin flete, en BRL, sin pedidos cancelados ni indisponibles. Olist no publica su comisión, así que el valor es GMV, no margen.
+- **Opciones:** ventana de 60, 90, 120 o 180 días; valor como GMV o como comisión supuesta (p. ej. 10–20% del GMV, dejándola como parámetro).
+- **Decisión:** _(por escribir; la implementación usa 90 días y GMV como valor por defecto)_
+- **Por qué (en mis palabras):** _(por escribir)_
