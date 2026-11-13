@@ -1,5 +1,5 @@
 [project]
-name = "growth-marketing-agent"
+name = "marketing-agent-lab"
 version = "0.1.0"
 description = "Analítica de marketing de punta a punta con datos públicos (Olist, Hillstrom): embudo, segmentación, lead scoring, CLV, experimentos, uplift, MMM y un agente analista de growth."
 readme = "README.md"

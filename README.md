@@ -1,4 +1,4 @@
-# growth-marketing-agent
+# marketing-agent-lab
 
 > 🚧 v0.1 en construcción · Proyecto construido sesión a sesión, con cada decisión registrada en [docs/decisiones.md](docs/decisiones.md). · Repo 2 del portafolio (el 1 es `credit-risk-agent-lab`).
 
