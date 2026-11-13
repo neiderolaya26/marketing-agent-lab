@@ -75,7 +75,8 @@ class CatBoostModelo(ClassifierMixin, BaseEstimator):  # el mixin va primero par
         from catboost import CatBoostClassifier
 
         base = dict(depth=self.depth, learning_rate=self.learning_rate, iterations=self.iterations,
-                    l2_leaf_reg=self.l2_leaf_reg, random_seed=SEMILLA, verbose=False, cat_features=CATEGORICAS)
+                    l2_leaf_reg=self.l2_leaf_reg, random_seed=SEMILLA, verbose=False, cat_features=CATEGORICAS,
+                    allow_writing_files=False)
         try:
             self.m_ = CatBoostClassifier(**base, task_type="GPU" if self.gpu else "CPU").fit(self._x(x), y)
             self.dispositivo_ = "GPU" if self.gpu else "CPU"
