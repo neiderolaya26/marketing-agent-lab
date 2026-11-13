@@ -38,3 +38,17 @@ Cada decisión importante del proyecto queda aquí, **escrita por Neider**: qué
   - **Ventana de 90 días.** 60, 120 y 180 quedan como sensibilidad en el notebook 02.
   - **El modelo trabaja en GMV** y el ingreso de Olist se calcula con una **comisión supuesta del 15%** (`embudo.COMISION`), con sensibilidad de 10% a 20%. Con eso, un lead de búsqueda pagada deja unos 9,5 BRL de ingreso y uno de orgánica 7,8.
 - **Por qué (en mis palabras):** Con 90 días veo ventas reales del vendedor sin perder demasiados contratos: me quedo con 663 de 842. A 180 días el orden de los canales cambia, pero con 194 contratos es ruido, no señal. Uso GMV porque es lo que se observa, y la comisión la dejo como parámetro visible porque cuando compare contra el costo de captación necesito ingreso, no ventas.
+
+---
+
+## 003 — Segmentación de hogares
+
+- **Fecha:** 2026-11-13
+- **Contexto** (`notebooks/03_segmentacion.ipynb`, `python -m growth_lab.segmentacion`): 2.446 hogares de Complete Journey. Segmento con las compras de ene–sep 2017 y valido con oct–dic: η² = parte de la varianza del gasto futuro (log) que explica el segmento.
+  - RFM clásico (8 segmentos): η² del gasto futuro 0,364; de la actividad 0,085.
+  - K-means sobre RFM: 0,426 (k=3), **0,465 (k=4)** y 0,472 (k=8). De k=4 en adelante casi no mejora.
+  - Agregar comportamiento (ticket, descuentos, cupones, % frescos, % droguería, regularidad) empeora: 0,35–0,42 con K-means y 0,23–0,35 con GMM.
+  - K-means con k=4 es estable: índice de Rand ajustado de 0,95 entre 10 semillas.
+- **Opciones:** RFM clásico, K-means RFM con k=3 o k=4, clustering con comportamiento.
+- **Decisión:** **K-means sobre RFM (log y estandarizado) con k = 4**, nombrados por monto: Núcleo (778 hogares), Regulares (820), Enfriándose (590) y Dormidos (258). Las variables de comportamiento **solo describen** cada segmento, no entran al clustering.
+- **Por qué (en mis palabras):** Elegí la segmentación que mejor predice el gasto de los meses siguientes con pocos grupos: 4 segmentos explican el 47% contra el 36% del RFM clásico, y salen iguales con cualquier semilla. Agregar comportamiento suena más completo, pero predice peor; prefiero que el segmento diga a quién y que el comportamiento diga qué ofrecerle.
