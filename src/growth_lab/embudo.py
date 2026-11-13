@@ -14,6 +14,7 @@ Solo usa tablas publicadas en data/processed, así que se reproduce sin descarga
 Supuestos (decisión 002):
 - Un pedido cuenta para el GMV si no está cancelado ni indisponible.
 - GMV = suma de `price` de los ítems (sin flete), en BRL.
+- Ingreso de Olist = GMV × `COMISION` (15% supuesto, parámetro visible).
 - Un contrato está **maduro** si `won_date + ventana <= CORTE`; solo los maduros entran
   al valor esperado, para no castigar a los canales que cerraron tarde.
 """
@@ -30,6 +31,7 @@ from growth_lab import db
 
 CORTE = "2018-08-29"  # último pedido de Olist
 VENTANA_DIAS = 90
+COMISION = 0.15  # supuesto: Olist no publica su comisión; sensibilidad 10%–20% (decisión 002)
 ESTADOS_EXCLUIDOS = ("canceled", "unavailable")
 
 _VENTAS = f"""
@@ -64,6 +66,7 @@ def _sql_leads(ventana_dias: int, corte: str) -> str:
            coalesce(v.pedidos, 0) AS pedidos, coalesce(v.gmv, 0) AS gmv
     FROM marketing_qualified_leads m
     LEFT JOIN valor v USING (mql_id)
+    ORDER BY m.mql_id  -- orden fijo: el bootstrap remuestrea por posición
     """
 
 
@@ -75,6 +78,7 @@ def embudo_canal(
     con: duckdb.DuckDBPyConnection,
     ventana_dias: int = VENTANA_DIAS,
     corte: str = CORTE,
+    comision: float = COMISION,
     n_boot: int = 2000,
     semilla: int = 0,
 ) -> pd.DataFrame:
@@ -98,6 +102,9 @@ def embudo_canal(
     ic = {c: ic_gmv_por_lead(g, n_boot, semilla) for c, g in leads(con, ventana_dias, corte).groupby("canal")}
     t["gmv_por_lead_p05"] = t.canal.map(lambda c: ic[c][0])
     t["gmv_por_lead_p95"] = t.canal.map(lambda c: ic[c][1])
+    for col in ("gmv_por_lead", "gmv_por_lead_p05", "gmv_por_lead_p95"):
+        t[col.replace("gmv", "ingreso")] = t[col] * comision
+    t["comision"] = comision
     t["ventana_dias"] = ventana_dias
     return t.sort_values("leads", ascending=False, ignore_index=True)
 
@@ -207,6 +214,6 @@ if __name__ == "__main__":
     s = generar(ventana)
     pd.set_option("display.width", 160)
     cols = ["canal", "leads", "tasa_cierre", "cerrados_maduros", "tasa_venta_si_cierra", "gmv_por_contrato",
-            "gmv_por_lead", "gmv_por_lead_p05", "gmv_por_lead_p95"]
+            "gmv_por_lead", "gmv_por_lead_p05", "gmv_por_lead_p95", "ingreso_por_lead"]
     print(s["embudo_canal"][cols].round(3).to_string(index=False))
     print(f"\nCohortes: {s['cohortes_compradores'].cohorte.nunique()} · meses KPI: {len(s['kpis_mensuales'])}")

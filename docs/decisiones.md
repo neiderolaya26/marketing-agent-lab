@@ -20,19 +20,21 @@ Cada decisión importante del proyecto queda aquí, **escrita por Neider**: qué
 - **Decisión:** **C) Ciclo completo, de punta a punta.** La pregunta del lab es cuánto invertir en **captar** (canales del embudo de Olist) y cuánto en **retener** (campañas y cupones de Complete Journey), con experimentos, atribución y MMM para medir lo incremental, y un agente que responda y proponga el reparto con aprobación humana.
 - **Métrica de éxito:** valor incremental por dólar invertido (ROI incremental) en cada palanca: canal de captación, campaña de retención y canal de medios. Cada sesión reporta su pieza en esa unidad o deja claro por qué no se puede.
 - **Datos en el repo:** todo en Parquet (zstd). Se publican en `data/processed/` las fuentes con licencia que lo permite (Olist sin texto libre ni geolocalización fina, Hillstrom, benchmark de atribución) y los derivados de cada sesión. De Complete Journey y Lenta solo se publican agregados.
-- **Por qué (en mis palabras):** "hagamos el ciclo completo, end to end, la gracia es tener muy enriquecido el lab en git" _(Neider puede ampliarlo)_.
+- **Por qué (en mis palabras):** Quiero el ciclo completo, de punta a punta, porque en la vida real el presupuesto se reparte entre captar y retener, y cada fuente sirve para una parte distinta. La gracia es que el lab quede muy completo en GitHub: datos en Parquet que cualquiera pueda usar, modelos, experimentos y un agente que conecte todo.
 
 ---
 
 ## 002 — Valor de un lead: ventana y definición
 
-- **Fecha:** 2026-11-10
+- **Fecha:** 2026-11-13
 - **Contexto** (`notebooks/02_embudo_cohortes.ipynb`, `python -m growth_lab.embudo`):
   - Valor de un lead = P(cierre) × GMV medio de los contratos **maduros** en sus primeros N días. Un contrato está maduro si `won_date + N` cae antes del último pedido (29-ago-2018); si no, no entra al promedio para no castigar a los canales que cerraron tarde.
-  - Con **90 días**: búsqueda pagada 63 BRL por lead (IC 90% [40; 94]), referidos 54 [12; 110], orgánica 52 [29; 83], tráfico directo 21 [11; 31], e-mail 14 [0; 39] y social 13 [6; 21]. Pagada y orgánica no se distinguen entre sí, pero ambas superan con claridad a social y directo.
-  - **El orden cambia con la ventana:** a 180 días la orgánica (132) supera a la pagada (82), pero con solo 67 y 39 contratos maduros. A 60 días están empatadas (37 y 39).
-  - El canal `unknown` vale 137 BRL por lead (IC [41; 293]). Probablemente son leads que llegaron por el equipo comercial sin canal registrado; no se puede invertir en él.
-  - GMV = `price` de los ítems sin flete, en BRL, sin pedidos cancelados ni indisponibles. Olist no publica su comisión, así que el valor es GMV, no margen.
-- **Opciones:** ventana de 60, 90, 120 o 180 días; valor como GMV o como comisión supuesta (p. ej. 10–20% del GMV, dejándola como parámetro).
-- **Decisión:** _(por escribir; la implementación usa 90 días y GMV como valor por defecto)_
-- **Por qué (en mis palabras):** _(por escribir)_
+  - Contratos maduros según la ventana: 722 (60 días), 663 (90), 543 (120) y 194 (180), de 842 cerrados.
+  - A 90 días: búsqueda pagada 63 BRL por lead (IC 90% [40; 91]), referidos 54 [11; 111], orgánica 52 [28; 84], tráfico directo 21 [11; 30], e-mail 14 [0; 40] y social 13 [6; 21].
+  - El orden cambia con la ventana: a 60 días pagada y orgánica empatan (39 y 37); a 180 días la orgánica (132) supera a la pagada (82), pero con muy pocos contratos.
+  - GMV = `price` de los ítems sin flete, en BRL, sin pedidos cancelados ni indisponibles. Olist no publica su comisión.
+- **Opciones:** ventana de 60, 90, 120 o 180 días; valor como solo GMV, comisión fija o GMV con comisión como parámetro.
+- **Decisión:**
+  - **Ventana de 90 días.** 60, 120 y 180 quedan como sensibilidad en el notebook 02.
+  - **El modelo trabaja en GMV** y el ingreso de Olist se calcula con una **comisión supuesta del 15%** (`embudo.COMISION`), con sensibilidad de 10% a 20%. Con eso, un lead de búsqueda pagada deja unos 9,5 BRL de ingreso y uno de orgánica 7,8.
+- **Por qué (en mis palabras):** Con 90 días veo ventas reales del vendedor sin perder demasiados contratos: me quedo con 663 de 842. A 180 días el orden de los canales cambia, pero con 194 contratos es ruido, no señal. Uso GMV porque es lo que se observa, y la comisión la dejo como parámetro visible porque cuando compare contra el costo de captación necesito ingreso, no ventas.

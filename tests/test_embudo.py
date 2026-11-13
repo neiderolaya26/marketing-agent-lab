@@ -52,6 +52,7 @@ def test_embudo_respeta_ventana_madurez_y_estado(con):
     assert ps.gmv_maduros == pytest.approx(100.0)  # solo o2
     assert ps.tasa_cierre == pytest.approx(2 / 3)
     assert ps.gmv_por_lead == pytest.approx(2 / 3 * 100.0)
+    assert ps.ingreso_por_lead == pytest.approx(ps.gmv_por_lead * embudo.COMISION)
     email = t.loc["email"]
     assert email.cerrados == 0 and np.isnan(email.gmv_por_lead)
 
