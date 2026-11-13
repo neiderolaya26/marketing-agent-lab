@@ -9,6 +9,16 @@
 
 ¿Se puede, **solo con datos públicos**, construir un sistema que diga **dónde poner el presupuesto de marketing**, es decir qué canal, qué cliente y qué campaña generan **valor incremental** y no solo conversiones, y que un **agente de IA "analista de growth"** responda preguntas de negocio y proponga campañas con su impacto estimado?
 
+## Resultados hasta ahora
+
+| Pieza | Resultado | Decisión |
+|---|---|---|
+| Valor de un lead | A 90 días, un lead de búsqueda pagada vale 63 BRL de GMV (IC 90% [40; 91]) y uno de orgánica 52 [28; 84]: no se distinguen, pero ambos valen de 4 a 5 veces más que uno de social (13 [6; 21]). Con una comisión supuesta del 15%, eso es 9,5 y 7,8 BRL de ingreso por lead. Elegí 90 días: a 180 el orden cambia, pero con solo 194 contratos | 002 |
+| Recompra | Del 0,8% al primer mes al 3,1% a los 12 meses, estable entre cohortes: el CLV se trabaja con Complete Journey | 001 |
+| Operación | Los meses con más entregas tarde (nov-2017, feb–mar-2018: 14–21%) son los de peor reseña (correlación mensual −0,81) | — |
+
+![Valor de un lead por canal](docs/img/embudo_valor_por_lead.png)
+
 ## Base conceptual
 
 Los temas salen de la ruta de aprendizaje **Paid Media** (`learning/rutas/paid-media`): el plan de 10 semanas (Columbia, Wharton) y el catálogo de modelos. Cada sesión toma un bloque de la ruta y lo aterriza en el dataset público que mejor lo resuelve.
@@ -39,7 +49,7 @@ Primeros hechos (`python -m growth_lab.ingest`):
 | Sesión | Tema (bloque de la ruta) | Técnicas del catálogo | Datos |
 |---|---|---|---|
 | 1 ✅ | Entorno, datos y pregunta de negocio (decisión 001: ciclo completo) | Ingesta a Parquet, DuckDB en memoria, panorama de fuentes (notebook 01) | Todas |
-| 2 | Inteligencia de mercado: embudo y cohortes | Embudo por etapa, cohortes, AOV, conversión por canal | Olist |
+| 2 ✅ | Inteligencia de mercado: embudo y cohortes | Valor de un lead = P(cierre) × GMV a 90 días con IC bootstrap, cohortes de recompra, KPIs mensuales (notebook 02) | Olist |
 | 3 | Segmentación del cliente | RFM, K-means / GMM, perfiles accionables | Complete Journey |
 | 4 | Lead scoring y calidad del lead | Logística vs. gradient boosting, lift por deciles, SHAP, propensión × valor, CAC por canal | Olist |
 | 5 | Valor del cliente | CLV (BG/NBD + Gamma-Gamma), supervivencia, churn | Complete Journey |
@@ -117,6 +127,8 @@ db.consultar(con, "SELECT origin, count(*) AS leads FROM marketing_qualified_lea
 | `hillstrom` | MineThatData | — |
 | `attr_journeys`, `attr_touchpoints` | Benchmark de atribución, CC BY 4.0 | — |
 
+Derivados por sesión: `embudo_canal`, `cohortes_compradores` y `kpis_mensuales` (sesión 2, `python -m growth_lab.embudo`).
+
 Complete Journey y Lenta no se publican por licencia: solo sus agregados y resultados.
 
 ## Estructura
@@ -134,4 +146,5 @@ tests/             pruebas que no necesitan datos
 ## Bitácora
 
 - 2026-11-10: inicio. Datos de Olist y Hillstrom ingeridos, hoja de ruta tomada de la ruta Paid Media, decisión 001 planteada.
+- 2026-11-10: decisión 001 (ciclo completo), todo en Parquet y fuentes abiertas publicadas en el repo. Sesión 2: embudo y cohortes.
 - 2026-11-10: revisión de datasets. Se suman Complete Journey (retención y campañas), Lenta (uplift a escala) y el benchmark de atribución. El MMM usará un generador propio porque el benchmark de Heusch (2026) no publica sus datos.
