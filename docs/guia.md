@@ -110,7 +110,7 @@ Todo quedó en **Parquet** y se consulta con **DuckDB** en memoria (sin base de 
 
 ---
 
-## Sesión 5 · Valor del cliente (CLV) — lo que viene
+## Sesión 5 ✅ · Valor del cliente (CLV) y churn parcial
 
 **Ahora vamos a…** estimar cuánto va a gastar cada hogar de Complete Journey en los próximos meses y cuál está por dejar de comprar.
 
@@ -121,7 +121,30 @@ Todo quedó en **Parquet** y se consulta con **DuckDB** en memoria (sin base de 
 - **Gamma-Gamma:** el compañero del BG/NBD que estima cuánto gastará por compra.
 - **Churn:** dejar de comprar. Se puede modelar como clasificación (¿compra en los próximos 3 meses?) o como supervivencia (¿cuánto tarda en irse?), igual que el prepago en crédito.
 
-**Lo que vas a decidir tú:** el horizonte del CLV (3, 6 o 12 meses), la definición de churn y si el modelo probabilístico (BG/NBD) le gana a uno de machine learning.
+- **Línea base ingenua:** "el próximo trimestre = el último". Si un modelo no le gana a eso, no vale la pena.
+
+**Lo que salió:**
+
+- Lo ingenuo es difícil de batir en un supermercado: se equivoca en 180 USD por hogar. LightGBM baja a 177 (no significativo) y el BG/NBD sube a 186.
+- El BG/NBD estima que la probabilidad de irse tras cada compra es 0,1%: aquí nadie se va del todo, compra menos. Por eso el churn se definió como **caída del gasto a menos de la mitad** (18% de los hogares).
+- El clasificador LightGBM anticipa ese churn con AUC 0,68; lo que más pesa es la tendencia del gasto reciente.
+- Los Dormidos se van más (37%), pero la plata en riesgo está en el Núcleo (37 de 74 mil USD). La retención se prioriza **por hogar**: el 20% con más riesgo junta el 58% de la plata.
+
+---
+
+## Sesión 6 · Experimentos (A/B) — lo que viene
+
+**Ahora vamos a…** aprender a diseñar y leer un experimento con el correo de Hillstrom: cuánta gente se necesita, si la diferencia es real y cómo reducir el ruido.
+
+**Para esto hay que saber…**
+
+- **A/B test:** se sortea quién recibe cada versión. Como es al azar, los grupos son iguales en todo lo demás y la diferencia es el **efecto causal**.
+- **Tamaño de muestra y potencia:** antes de empezar se calcula cuánta gente hace falta para detectar el efecto que te importa. Con poca gente, un efecto real puede no verse.
+- **CUPED:** usa lo que cada cliente gastaba **antes** del experimento para quitar ruido. Es como comparar la mejora de cada cliente en vez de su gasto bruto: el mismo efecto se detecta con menos gente.
+- **Mirar antes de tiempo (*peeking*):** revisar el resultado todos los días y parar cuando "da significativo" infla los falsos positivos. Las pruebas secuenciales lo corrigen.
+- **Enfoque bayesiano:** en vez de un p-valor, da la probabilidad de que B sea mejor que A y cuánto se espera ganar o perder.
+
+**Lo que vas a decidir tú:** el efecto mínimo que vale la pena detectar, la métrica principal (visita, conversión o gasto) y si se lee el experimento de forma clásica o bayesiana.
 
 ---
 
