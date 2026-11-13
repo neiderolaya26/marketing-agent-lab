@@ -86,3 +86,34 @@ Cada decisión importante del proyecto queda aquí, **escrita por Neider**: qué
   - Con ~3.300 filas la GPU es más lenta: XGBoost 2,4 s frente a 0,9 s en CPU; CatBoost 47 s frente a 38 s.
 - **Decisión:** **regresión logística** como campeona (`leads_modelos.CAMPEON`). Las variables de historia **se mantienen** y se monitorea su PSI (`leads_estabilidad`).
 - **Por qué (en mis palabras):** La logística y LightGBM empatan, y con un empate gana lo simple: se lee como un scorecard y entrena en una décima de segundo. CatBoost me enseñó que el mejor en validación no es el mejor en prueba. Mantengo las tasas previas porque ayudan con las landings nuevas y su deriva es un artefacto de este dataset, pero las dejo vigiladas con PSI.
+
+---
+
+## 006 — CLV: horizonte, churn y modelos a comparar
+
+- **Fecha:** 2026-11-13
+- **Contexto:** Complete Journey trae un solo año (2017). La estacionalidad es plana (370–420 mil USD al mes). Sin compra en 13 semanas solo queda el 5,8% de los hogares; el 17% reduce su gasto a menos de la mitad.
+- **Decisión:**
+  - **Horizonte de 13 semanas:** calibro con ene–sep y valido con oct–dic, igual que la segmentación.
+  - **Churn parcial:** el gasto de oct–dic cae a menos de la mitad del de jul–sep (18% de los hogares con compras en jul–sep).
+  - **Compiten** BG/NBD + Gamma-Gamma (implementados desde cero con scipy), LightGBM (aprende de ene–jun → jul–sep) y la línea base "el próximo trimestre = el último".
+- **Por qué (en mis palabras):** 13 semanas es el horizonte de una campaña trimestral y deja 9 meses para aprender. En un supermercado nadie cancela: el cliente se va de a poco, así que mido la caída a la mitad, que es cuando todavía se puede recuperar. Y comparo contra lo ingenuo porque, si un modelo no le gana, no vale la pena.
+
+---
+
+## 007 — Modelo de CLV, score de churn y prioridad de retención
+
+- **Fecha:** 2026-11-13
+- **Contexto** (`notebooks/05_clv_churn.ipynb`, `python -m growth_lab.clv`):
+
+  | Modelo | MAE (USD, 13 semanas) | vs. ingenuo (IC 90%) | Spearman |
+  |---|---|---|---|
+  | Ingenuo (último trimestre) | 180,5 | — | 0,814 |
+  | BG/NBD + Gamma-Gamma | 186,0 | +5,5 [+0,6; +10,3] | 0,805 |
+  | LightGBM | 176,9 | −3,6 [−7,7; +0,6] | 0,823 |
+
+  - El BG/NBD estima 1,02 compras por semana y una probabilidad de abandonar tras cada compra de 0,1%: aquí casi nadie se va del todo, que es justo lo que ese modelo sabe predecir.
+  - Churn parcial (AUC): clasificador LightGBM 0,68; P(no vivo) del BG/NBD 0,62; caída esperada según los modelos de valor ≈ 0,51.
+  - Por segmento, la tasa de churn es Dormidos 37%, Enfriándose 27%, Regulares 16% y Núcleo 10%, pero el gasto en riesgo es Núcleo 37 mil USD, Regulares 23 mil, Enfriándose 12,6 mil y Dormidos 1,2 mil. El 20% de hogares con más riesgo concentra el 58% de ese riesgo.
+- **Decisión:** **CLV con LightGBM**, **churn con el clasificador LightGBM** y la retención se **prioriza por hogar** con el gasto en riesgo = P(churn) × la mitad del gasto de jul–sep, no por segmento.
+- **Por qué (en mis palabras):** LightGBM le gana por poco al ingenuo (no es significativo y lo digo así), pero es el único que además da una probabilidad de churn que funciona. El BG/NBD está pensado para el cliente que se va del todo y aquí casi nadie lo hace. Cambio mi apuesta de la sesión 3: no priorizo un segmento sino a los hogares con más plata en riesgo, y la sesión 7 dirá a cuáles de ellos la campaña les cambia la decisión.

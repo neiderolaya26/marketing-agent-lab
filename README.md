@@ -17,6 +17,7 @@
 | Recompra | Del 0,8% al primer mes al 3,1% a los 12 meses, estable entre cohortes: el CLV se trabaja con Complete Journey | 001 |
 | Segmentación | K-means sobre RFM con 4 segmentos explica el 47% del gasto futuro (RFM clásico: 36%). El Núcleo es el 32% de los hogares y hace el 64% del gasto; Enfriándose (24%) sigue activo pero compra menos de la mitad: es la apuesta de retención. Las campañas llegaron al 97% del Núcleo y al 36% de Enfriándose: no fueron al azar | 003 |
 | Lead scoring | Entre 6 modelos y 240 intentos de Optuna, la regresión logística (AUC 0,681 en abr–may) empata con LightGBM y gana a los demás; el 20% de leads con mejor score trae el 39% de los cierres. Por unidad de costo, social rinde 0,17 y display 0,03 de lo que rinde la búsqueda pagada | 004–005 |
+| Valor del cliente | "El próximo trimestre = el último" es difícil de batir: LightGBM lo mejora por poco (MAE 177 vs. 181 USD, no significativo) y el BG/NBD lo empeora (186), porque aquí nadie se va del todo: compra menos. El churn parcial (gasto a la mitad) se anticipa con AUC 0,68. El 20% de hogares con más riesgo junta el 58% de la plata en riesgo, sobre todo del Núcleo | 006–007 |
 | Operación | Los meses con más entregas tarde (nov-2017, feb–mar-2018: 14–21%) son los de peor reseña (correlación mensual −0,81) | — |
 
 ![Valor de un lead por canal](docs/img/embudo_valor_por_lead.png)
@@ -24,6 +25,8 @@
 ![Segmentos: hogares y gasto futuro](docs/img/segmentos_valor.png)
 
 ![Búsqueda de modelos de lead scoring](docs/img/leads_modelos.png)
+
+![Plata en riesgo por segmento](docs/img/clv_riesgo_segmento.png)
 
 ## Para aprender
 
@@ -63,7 +66,7 @@ Primeros hechos (`python -m growth_lab.ingest`):
 | 2 ✅ | Inteligencia de mercado: embudo y cohortes | Valor de un lead = P(cierre) × GMV a 90 días con IC bootstrap, cohortes de recompra, KPIs mensuales (notebook 02) | Olist |
 | 3 ✅ | Segmentación del cliente | RFM clásico vs. K-means vs. GMM validados fuera de tiempo (η² del gasto futuro), estabilidad, exposición a campañas (notebook 03) | Complete Journey |
 | 4 ✅ | Lead scoring y calidad del lead | 6 modelos con Optuna y validación temporal, lift y curva de ganancia, importancia por permutación, PSI, CPU vs. GPU, valor por unidad de costo por canal (notebook 04) | Olist + benchmark |
-| 5 | Valor del cliente | CLV (BG/NBD + Gamma-Gamma), supervivencia, churn | Complete Journey |
+| 5 ✅ | Valor del cliente | BG/NBD + Gamma-Gamma desde cero vs. LightGBM vs. ingenuo, churn parcial, gasto en riesgo por hogar (notebook 05) | Complete Journey |
 | 6 | Experimentos | A/B con tamaño de muestra, CUPED, prueba secuencial y bayesiana | Hillstrom |
 | 7 | Uplift | S/T/X-learner, causal forest, curva Qini, asignación con presupuesto | Hillstrom + Lenta |
 | 8 | Efecto de campañas y cupones | Causalidad observacional: diferencias en diferencias, matching, DML, placebo | Complete Journey |
@@ -138,7 +141,7 @@ db.consultar(con, "SELECT origin, count(*) AS leads FROM marketing_qualified_lea
 | `hillstrom` | MineThatData | — |
 | `attr_journeys`, `attr_touchpoints` | Benchmark de atribución, CC BY 4.0 | — |
 
-Derivados por sesión: `embudo_canal`, `cohortes_compradores` y `kpis_mensuales` (sesión 2, `python -m growth_lab.embudo`); `segmentos_perfil` y `segmentos_comparacion` (sesión 3, `python -m growth_lab.segmentacion`, solo agregados de segmentos con ≥ 20 hogares); `leads_optuna`, `leads_metricas`, `leads_deciles`, `leads_importancia`, `leads_score`, `leads_estabilidad`, `leads_coeficientes`, `leads_cpu_vs_gpu` y `canales_rentabilidad` (sesión 4, `python -m growth_lab.leads_modelos 40` y `python -m growth_lab.leads`).
+Derivados por sesión: `embudo_canal`, `cohortes_compradores` y `kpis_mensuales` (sesión 2, `python -m growth_lab.embudo`); `segmentos_perfil` y `segmentos_comparacion` (sesión 3, `python -m growth_lab.segmentacion`, solo agregados de segmentos con ≥ 20 hogares); `leads_optuna`, `leads_metricas`, `leads_deciles`, `leads_importancia`, `leads_score`, `leads_estabilidad`, `leads_coeficientes`, `leads_cpu_vs_gpu` y `canales_rentabilidad` (sesión 4, `python -m growth_lab.leads_modelos 40` y `python -m growth_lab.leads`); `clv_metricas`, `clv_deciles`, `clv_churn`, `clv_churn_importancia`, `clv_parametros` y `clv_por_segmento` (sesión 5, `python -m growth_lab.clv`, solo agregados).
 
 Complete Journey y Lenta no se publican por licencia: solo sus agregados y resultados.
 
@@ -157,6 +160,7 @@ tests/             pruebas que no necesitan datos
 ## Bitácora
 
 - 2026-11-10: inicio. Datos de Olist y Hillstrom ingeridos, hoja de ruta tomada de la ruta Paid Media, decisión 001 planteada.
+- 2026-11-13: sesión 5: CLV y churn parcial, decisiones 006–007.
 - 2026-11-13: sesión 4: lead scoring con búsqueda de 6 modelos y decisiones 004–005; guía y glosario.
 - 2026-11-13: repo público `marketing-agent-lab`; decisión 002 (ventana de 90 días, comisión 15%). Sesión 3: segmentación y decisión 003.
 - 2026-11-10: decisión 001 (ciclo completo), todo en Parquet y fuentes abiertas publicadas en el repo. Sesión 2: embudo y cohortes.
