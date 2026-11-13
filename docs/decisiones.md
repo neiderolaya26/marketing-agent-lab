@@ -52,3 +52,37 @@ Cada decisión importante del proyecto queda aquí, **escrita por Neider**: qué
 - **Opciones:** RFM clásico, K-means RFM con k=3 o k=4, clustering con comportamiento.
 - **Decisión:** **K-means sobre RFM (log y estandarizado) con k = 4**, nombrados por monto: Núcleo (778 hogares), Regulares (820), Enfriándose (590) y Dormidos (258). Las variables de comportamiento **solo describen** cada segmento, no entran al clustering.
 - **Por qué (en mis palabras):** Elegí la segmentación que mejor predice el gasto de los meses siguientes con pocos grupos: 4 segmentos explican el 47% contra el 36% del RFM clásico, y salen iguales con cualquier semilla. Agregar comportamiento suena más completo, pero predice peor; prefiero que el segmento diga a quién y que el comportamiento diga qué ofrecerle.
+
+---
+
+## 004 — Lead scoring: población, objetivo y costos
+
+- **Fecha:** 2026-11-13
+- **Contexto:** los contratos del dataset empiezan en dic-2017, así que en 2017 solo cierra el 3% de los leads y desde ene-2018 el 13%. Es un problema de cobertura, no de calidad. Olist no publica cuánto le cuesta cada canal. En el benchmark de atribución, orgánica y directo cuestan 0.
+- **Decisión:**
+  - **Población:** leads de 2018 (5.998). Entreno con ene–mar (3.343) y pruebo con abr–may (2.655). Los leads de 2017 solo sirven como historia.
+  - **Objetivo:** P(cierre). Calidad del lead = P(cierre) × GMV por contrato de su canal (sesión 2).
+  - **Variables:** solo lo que se sabe cuando llega el lead: canal, landing (las 40 más frecuentes del entrenamiento; el resto queda como "otra"), día de la semana y tasas previas calculadas solo con cierres ya ocurridos. Nada de `closed_deals`, porque solo existe si el lead cerró.
+  - **Costos:** CPL de equilibrio (= ingreso por lead con 15% de comisión) e índice de costo por conversión del benchmark (búsqueda pagada = 1). Orgánica y directo son costo fijo: se reporta su valor, sin ROI de pauta.
+- **Por qué (en mis palabras):** Si entreno con 2017, el modelo aprende que "2017 no cierra", que es un error de los datos y no de los leads. Prefiero medir rentabilidad con un costo relativo explícito que inventar pesos, y no le calculo ROI de pauta al SEO porque su costo no depende de cuántos leads trae.
+
+---
+
+## 005 — Modelo campeón del lead scoring
+
+- **Fecha:** 2026-11-13
+- **Contexto** (`notebooks/04_lead_scoring.ipynb`, `python -m growth_lab.leads_modelos 40`): 6 modelos, 40 intentos de Optuna cada uno, ajustados con validación temporal dentro de ene–mar y medidos una sola vez en abr–may.
+
+  | Modelo | AUC validación | AUC prueba (IC 90%) | vs. logística |
+  |---|---|---|---|
+  | Logística | 0,611 | 0,681 [0,655; 0,706] | — |
+  | LightGBM | 0,609 | 0,680 [0,654; 0,706] | −0,001 [−0,010; +0,009] |
+  | XGBoost | 0,609 | 0,672 [0,646; 0,697] | −0,009 [−0,017; −0,000] |
+  | Random Forest | 0,611 | 0,665 [0,637; 0,692] | −0,016 [−0,028; −0,004] |
+  | CatBoost | 0,616 | 0,634 [0,605; 0,662] | −0,046 [−0,061; −0,032] |
+  | Red neuronal | 0,534 | 0,361 [0,333; 0,387] | −0,319 |
+
+  - Las tasas previas tienen PSI > 2 entre entreno y prueba: se duplican porque los cierres conocidos se acumulan desde dic-2017. Sin ellas la logística da 0,677 (dentro del ruido).
+  - Con ~3.300 filas la GPU es más lenta: XGBoost 2,4 s frente a 0,9 s en CPU; CatBoost 47 s frente a 38 s.
+- **Decisión:** **regresión logística** como campeona (`leads_modelos.CAMPEON`). Las variables de historia **se mantienen** y se monitorea su PSI (`leads_estabilidad`).
+- **Por qué (en mis palabras):** La logística y LightGBM empatan, y con un empate gana lo simple: se lee como un scorecard y entrena en una décima de segundo. CatBoost me enseñó que el mejor en validación no es el mejor en prueba. Mantengo las tasas previas porque ayudan con las landings nuevas y su deriva es un artefacto de este dataset, pero las dejo vigiladas con PSI.
