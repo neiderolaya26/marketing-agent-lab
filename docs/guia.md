@@ -183,7 +183,7 @@ Todo quedó en **Parquet** y se consulta con **DuckDB** en memoria (sin base de 
 
 ---
 
-## Sesión 8 · Efecto de campañas sin experimento — lo que viene
+## Sesión 8 ✅ · Efecto de campañas sin experimento
 
 **Ahora vamos a…** medir cuánto venden de más las campañas de Complete Journey, que **no** fueron al azar (llegaron al 97% del Núcleo y al 3,5% de los Dormidos).
 
@@ -195,7 +195,28 @@ Todo quedó en **Parquet** y se consulta con **DuckDB** en memoria (sin base de 
 - **DML (*double machine learning*):** usa modelos de ML para quitar del gasto y de la campaña lo que explican las variables previas, y estima el efecto con lo que queda. Lo usamos en el lab de crédito.
 - **Placebo:** se aplica el mismo método a un período **antes** de la campaña. Si "encuentra" efecto donde no puede haberlo, el método está sesgado.
 
-**Lo que vas a decidir tú:** qué campañas analizar (tipo A, B o C), con qué método y qué hacer si el placebo falla.
+**Lo que salió:**
+
+- La comparación ingenua dice +31 USD por hogar y semana (+57%): es pura selección, porque la campaña se mandó a los que ya gastaban más.
+- Corregida la selección, las tres campañas tipo A combinadas dan +2,4 USD por semana [−1,1; +6,0] con el DiD doblemente robusto: no se distingue de 0.
+- Todos los placebos pasan, así que el método está bien calibrado. El DML da lo mismo en lo real que en el placebo: lo que mide es sesgo residual.
+- Para que el margen pague los cupones harían falta +1,3 USD por semana, y detectarlo exige entre 4.300 y 6.000 hogares de control sorteados por campaña. La recomendación es un grupo de control al azar, acumulado entre campañas.
+
+---
+
+## Sesión 9 · Atribución multitoque — lo que viene
+
+**Ahora vamos a…** repartir el mérito de cada venta entre los canales que tocó el cliente antes de comprar (vio un anuncio en redes, buscó en Google, abrió un correo…) y ver cuánto se equivoca la regla más usada, el "último clic".
+
+**Para esto hay que saber…**
+
+- **Recorrido (*journey*):** la secuencia de canales que tocó un cliente antes de convertir o de irse.
+- **Reglas simples:** *último clic* (todo el mérito al último canal), *primer clic*, *lineal* (partes iguales), *decaimiento temporal* (más mérito a los toques recientes) y *en U* (40% al primero, 40% al último, el resto al medio).
+- **Markov:** trata los recorridos como una cadena de pasos y mide el **efecto de quitar** cada canal: si sin "búsqueda pagada" se pierde el 30% de las conversiones, ese canal merece el 30%.
+- **Shapley:** reparte el mérito promediando lo que aporta cada canal en todas las combinaciones posibles; viene de la teoría de juegos.
+- **Por qué el benchmark:** en datos reales no se sabe qué canal causó la venta. Este dataset se generó con reglas conocidas y trae la atribución Shapley verdadera, así que se puede medir el error de cada método.
+
+**Lo que vas a decidir tú:** qué método de atribución usar para repartir el presupuesto y qué hacer con canales "baratos" como e-mail u orgánico que aparecen en muchos recorridos.
 
 ---
 

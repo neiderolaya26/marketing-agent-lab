@@ -163,3 +163,39 @@ Cada decisión importante del proyecto queda aquí, **escrita por Neider**: qué
   - **Modelo de referencia: X-learner** (`uplift.MODELO_REFERENCIA`) para cuando el presupuesto alcance solo para una parte y haya señal medible.
   - **Regla:** antes de personalizar, se mide si hay diferencias entre clientes (Qini con IC). Si el IC cruza 0, se decide con el efecto promedio.
 - **Por qué (en mis palabras):** Personalizar con un modelo que solo ve ruido me costó 0,19 USD por cliente frente a la regla simple. El uplift sirve cuando el efecto cambia de un cliente a otro y hay muestra para verlo, como la visita del correo de mujeres o Lenta. Me quedo con el X-learner porque es el que funcionó con grupos desbalanceados, que es lo normal en campañas reales.
+
+---
+
+## 011 — Efecto de campañas sin experimento: diseño
+
+- **Fecha:** 2026-11-13
+- **Contexto:** las campañas de Complete Journey no fueron al azar (llegaron al 97% del Núcleo y al 3,5% de los Dormidos). Las tipo A (8, 13 y 18) son las grandes: ~1.100 hogares cada una, con historia previa y casi todos los canjes (372, 629 y 653). Las tipo B y C tienen de 12 a 280 hogares.
+- **Decisión:**
+  - **Campañas:** las 3 tipo A, cada una por separado y combinadas (promedio ponderado por precisión).
+  - **Ventanas:** "antes" = las **5 semanas** previas al inicio; "durante" = lo que dura la campaña. Planteé 8 semanas, pero con 8 la ventana previa se superpone con la campaña tipo A anterior y la contamina.
+  - **Método principal:** DiD doblemente robusto (pondera a los no tratados por propensión y ajusta el cambio con una regresión), con soporte común de propensión entre 0,02 y 0,98. **Contraste:** DML con LightGBM. **Referencias:** ingenuo y DiD simple.
+  - **Placebo:** el mismo cálculo corrido 5 semanas antes. Si el placebo encuentra efecto, el resultado se reporta como **no identificado**.
+- **Por qué (en mis palabras):** Elijo las tipo A porque son las únicas con muestra suficiente y porque, si las tres dan parecido, le creo más al resultado. Acorto la ventana a 5 semanas para no mezclar una campaña con la anterior. Y fijo de antemano qué hago si el placebo falla para no acomodar la conclusión al resultado, como hicimos en el lab de crédito.
+
+---
+
+## 012 — Efecto de las campañas tipo A y recomendación
+
+- **Fecha:** 2026-11-13
+- **Contexto** (`notebooks/08_efecto_campanas.ipynb`, `python -m growth_lab.campanas`), en USD de gasto por hogar y semana, 3 campañas combinadas:
+
+  | Método | Campañas reales (IC 95%) | Placebo (IC 95%) |
+  |---|---|---|
+  | Ingenuo | +31,2 [29,1; 33,2] (+57%) | +30,9 |
+  | DiD simple | +0,0 [−1,3; +1,3] | −0,6 [−2,0; +0,8] |
+  | **DiD doble robusto** | **+2,4 [−1,1; +6,0] (+4%)** | −2,1 [−5,9; +1,8] |
+  | DML | +1,1 [−0,9; +3,0] | +1,1 [−0,8; +3,0] |
+
+  - Todos los placebos pasan (IC que incluye 0). El DML da lo mismo en lo real que en el placebo: lo que mide es sesgo residual, no la campaña.
+  - Por campaña (DiD doble robusto): 8 → +3,6 [−2,6; +10,8]; 13 → +3,1 [−2,7; +7,8]; 18 → +0,1 [−6,5; +7,2]. El estudio de eventos muestra una subida en la campaña 8 (+4,9 durante) y nada claro en la 13 y la 18.
+  - Para que el margen (30%) pague los cupones, el gasto tendría que subir entre 1,3 y 1,4 USD por hogar y semana (≈ +2,4%). Ese valor queda dentro del intervalo.
+  - Con una variación semanal de ~32 USD por hogar, detectar +1,3 con 80% de potencia exige **entre 4.300 y 6.000 hogares de control** sorteados por campaña; cada campaña llega a ~1.100.
+- **Decisión:**
+  - **Conclusión:** el efecto de las campañas tipo A **no se distingue de 0**. El método está bien calibrado (los placebos pasan), pero el efecto es demasiado chico para verlo con esta muestra: a lo sumo +6 USD por semana (+11%).
+  - **Recomendación:** dejar un **grupo de control sorteado** en las próximas campañas. Como una sola campaña no alcanza, ese control hay que acumularlo entre campañas o medir a escala de cadena (miles de hogares) antes de decidir si las campañas pagan sus cupones.
+- **Por qué (en mis palabras):** La comparación ingenua decía que la campaña sube el gasto 57%, pero solo estaba midiendo que se la mandaron a los mejores clientes. Corregida la selección, no queda un efecto que se pueda separar del ruido. No digo que las campañas no sirvan: digo que con estos datos no se puede saber, y que la única forma de saberlo es un grupo de control al azar, aunque tenga que ser grande.
