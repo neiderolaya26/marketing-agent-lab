@@ -132,7 +132,7 @@ Todo quedó en **Parquet** y se consulta con **DuckDB** en memoria (sin base de 
 
 ---
 
-## Sesión 6 · Experimentos (A/B) — lo que viene
+## Sesión 6 ✅ · Experimentos (A/B)
 
 **Ahora vamos a…** aprender a diseñar y leer un experimento con el correo de Hillstrom: cuánta gente se necesita, si la diferencia es real y cómo reducir el ruido.
 
@@ -144,7 +144,34 @@ Todo quedó en **Parquet** y se consulta con **DuckDB** en memoria (sin base de 
 - **Mirar antes de tiempo (*peeking*):** revisar el resultado todos los días y parar cuando "da significativo" infla los falsos positivos. Las pruebas secuenciales lo corrigen.
 - **Enfoque bayesiano:** en vez de un p-valor, da la probabilidad de que B sea mejor que A y cuánto se espera ganar o perder.
 
-**Lo que vas a decidir tú:** el efecto mínimo que vale la pena detectar, la métrica principal (visita, conversión o gasto) y si se lee el experimento de forma clásica o bayesiana.
+- **SRM y balance:** antes de leer el resultado se revisa que el sorteo haya salido bien: grupos del tamaño esperado y parecidos en todo lo previo.
+
+**Lo que salió:**
+
+- El sorteo salió bien (SRM p = 0,90; todas las variables balanceadas).
+- El e-mail de hombres sube el gasto +0,77 USD por cliente (+118%) y el de mujeres +0,42 (+65%); el de hombres le gana al de mujeres. Con 30% de margen, cada correo puede costar hasta 0,23 USD y seguir siendo rentable.
+- CUPED casi no ayudó (< 0,1%): el gasto de antes no predice el de estas dos semanas. Solo funciona cuando lo previo se parece a lo que se mide.
+- Mirar 20 veces sin corregir sube los falsos positivos de 5% a 23%; con O'Brien-Fleming quedan en 4,7% y se pudo parar con la mitad de la muestra.
+
+---
+
+## Sesión 7 · Uplift — lo que viene
+
+**Ahora vamos a…** pasar del efecto promedio ("el correo sube el gasto 0,77 USD") al efecto **de cada cliente**, para mandarle el correo solo a quien le cambia la decisión.
+
+**Para esto hay que saber…**
+
+- **Los cuatro tipos de cliente frente a una campaña:**
+  - **Persuadibles:** compran solo si los contactas. Aquí está la plata.
+  - **Seguros:** compran igual, con o sin contacto. Contactarlos es gastar de más.
+  - **Causas perdidas:** no compran pase lo que pase.
+  - **No molestar:** el contacto los espanta (se desuscriben, se molestan).
+- **Uplift = P(compra si lo contacto) − P(compra si no).** Un modelo de propensión común ordena por "quién va a comprar", que incluye a los Seguros. El uplift ordena por "a quién le cambio la decisión".
+- **S-, T- y X-learner:** tres recetas para estimar el uplift con modelos normales. La T entrena un modelo para tratados y otro para control y resta; la S usa un solo modelo con el tratamiento como variable; la X corrige a la T cuando un grupo es mucho más chico.
+- **Curva Qini:** como la curva de ganancia del lead scoring, pero para el efecto incremental: si contacto al top X% según el uplift, ¿cuántas compras **extra** consigo?
+- **Por qué hace falta un experimento:** el uplift solo se puede aprender donde se sorteó quién recibía el contacto (Hillstrom, Lenta).
+
+**Lo que vas a decidir tú:** qué modelo de uplift usar, a qué porcentaje de clientes mandarle el correo con un presupuesto fijo y si se personaliza entre el correo de hombres y el de mujeres.
 
 ---
 
