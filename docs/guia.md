@@ -155,7 +155,7 @@ Todo quedó en **Parquet** y se consulta con **DuckDB** en memoria (sin base de 
 
 ---
 
-## Sesión 7 · Uplift — lo que viene
+## Sesión 7 ✅ · Uplift
 
 **Ahora vamos a…** pasar del efecto promedio ("el correo sube el gasto 0,77 USD") al efecto **de cada cliente**, para mandarle el correo solo a quien le cambia la decisión.
 
@@ -171,7 +171,31 @@ Todo quedó en **Parquet** y se consulta con **DuckDB** en memoria (sin base de 
 - **Curva Qini:** como la curva de ganancia del lead scoring, pero para el efecto incremental: si contacto al top X% según el uplift, ¿cuántas compras **extra** consigo?
 - **Por qué hace falta un experimento:** el uplift solo se puede aprender donde se sorteó quién recibía el contacto (Hillstrom, Lenta).
 
-**Lo que vas a decidir tú:** qué modelo de uplift usar, a qué porcentaje de clientes mandarle el correo con un presupuesto fijo y si se personaliza entre el correo de hombres y el de mujeres.
+- **Cross-fitting:** se parte la muestra en 5 pedazos; cada pedazo se predice con modelos entrenados en los otros 4. Así se evalúa con todos los clientes sin que el modelo se "vea a sí mismo".
+- **IPW para evaluar políticas:** como en el experimento cada cliente tenía 1/3 de probabilidad de recibir cada versión, el valor de una política se estima con los clientes a los que por azar les tocó lo que la política habría elegido, multiplicando por 3.
+
+**Lo que salió:**
+
+- En el **gasto** ningún modelo de uplift le gana al azar: no hay diferencias medibles entre clientes. Personalizar con ese ruido dio 1,23 USD por cliente contra 1,42 de mandar el correo de hombres a todos.
+- En la **visita** del correo de mujeres sí hay persuadibles: todos los modelos superan al azar y a la propensión.
+- En **Lenta**, el X-learner es el único con señal: con el 30% del presupuesto consigue 1,6 veces la respuesta extra del azar.
+- Regla: antes de personalizar, medir si hay diferencias (Qini con IC). Si no las hay, decidir con el efecto promedio.
+
+---
+
+## Sesión 8 · Efecto de campañas sin experimento — lo que viene
+
+**Ahora vamos a…** medir cuánto venden de más las campañas de Complete Journey, que **no** fueron al azar (llegaron al 97% del Núcleo y al 3,5% de los Dormidos).
+
+**Para esto hay que saber…**
+
+- **Sesgo de selección:** si la campaña se manda a los mejores clientes, comparar con y sin campaña mide "ser buen cliente", no el efecto de la campaña. Es el mismo problema de inferir sobre rechazados en crédito.
+- **Diferencias en diferencias (DiD):** se compara cuánto **cambió** el gasto de los que recibieron la campaña contra cuánto cambió el de los que no, en las mismas semanas. Lo fijo de cada hogar se cancela.
+- **Matching y ponderación por propensión:** se compara cada hogar con campaña contra hogares parecidos que no la recibieron (mismo RFM, segmento y gasto previo).
+- **DML (*double machine learning*):** usa modelos de ML para quitar del gasto y de la campaña lo que explican las variables previas, y estima el efecto con lo que queda. Lo usamos en el lab de crédito.
+- **Placebo:** se aplica el mismo método a un período **antes** de la campaña. Si "encuentra" efecto donde no puede haberlo, el método está sesgado.
+
+**Lo que vas a decidir tú:** qué campañas analizar (tipo A, B o C), con qué método y qué hacer si el placebo falla.
 
 ---
 

@@ -146,3 +146,20 @@ Cada decisión importante del proyecto queda aquí, **escrita por Neider**: qué
   - **Margen supuesto de 30%** (`experimentos.MARGEN`, sensibilidad 20–40%): el costo máximo por correo es 0,23 USD (hombres) y 0,13 (mujeres); con el límite inferior del IC, 0,15 y 0,05.
   - **Regla de lectura:** los experimentos del lab se leen de forma **secuencial con límites de O'Brien-Fleming** calibrados por simulación.
 - **Por qué (en mis palabras):** Los dos correos funcionan y el de hombres es el mejor en promedio, así que es la opción segura hoy. Un correo cuesta centavos y deja hasta 0,23 USD de margen, así que es rentable con cualquier margen razonable. Y aprendí que mirar el resultado todos los días sin corregir convierte un 5% de error en un 23%.
+
+---
+
+## 010 — Uplift: política de envío y modelo de referencia
+
+- **Fecha:** 2026-11-13
+- **Contexto** (`notebooks/07_uplift.ipynb`, `python -m growth_lab.uplift`): S-, T- y X-learner, resultado transformado y propensión (contraste), con base LightGBM. Hillstrom con cross-fitting de 5 pliegues (64.000 clientes); Lenta con prueba del 30% (206 mil clientes).
+  - **Gasto (Hillstrom):** ningún modelo supera al azar; todos los Qini tienen IC que cruza 0. No hay diferencias medibles entre clientes en el efecto sobre el gasto.
+  - **Visita, correo de mujeres:** todos los modelos de uplift superan al azar (S-learner 0,0072 [0,0055; 0,0089]; X-learner 0,0062) y le ganan a la propensión (0,0044).
+  - **Visita, correo de hombres:** solo la propensión supera al azar; el efecto es parejo entre clientes.
+  - **Lenta:** el X-learner es el único con Qini positivo (0,0011 [0,0000; 0,0018]); contactando al 30% consigue 1,6 veces la respuesta extra del azar.
+  - **Políticas (gasto por cliente, IPW):** correo de hombres a todos 1,42 USD; según lo que compraba 1,43 (+0,01 [−0,14; +0,18]); personalizada con uplift 1,23 (−0,19 [−0,38; +0,03]); no enviar 0,65.
+- **Decisión:**
+  - **Política: correo de hombres a todos** (`uplift.POLITICA_RECOMENDADA`).
+  - **Modelo de referencia: X-learner** (`uplift.MODELO_REFERENCIA`) para cuando el presupuesto alcance solo para una parte y haya señal medible.
+  - **Regla:** antes de personalizar, se mide si hay diferencias entre clientes (Qini con IC). Si el IC cruza 0, se decide con el efecto promedio.
+- **Por qué (en mis palabras):** Personalizar con un modelo que solo ve ruido me costó 0,19 USD por cliente frente a la regla simple. El uplift sirve cuando el efecto cambia de un cliente a otro y hay muestra para verlo, como la visita del correo de mujeres o Lenta. Me quedo con el X-learner porque es el que funcionó con grupos desbalanceados, que es lo normal en campañas reales.
