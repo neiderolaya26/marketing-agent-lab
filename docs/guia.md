@@ -204,7 +204,7 @@ Todo quedó en **Parquet** y se consulta con **DuckDB** en memoria (sin base de 
 
 ---
 
-## Sesión 9 · Atribución multitoque — lo que viene
+## Sesión 9 ✅ · Atribución multitoque
 
 **Ahora vamos a…** repartir el mérito de cada venta entre los canales que tocó el cliente antes de comprar (vio un anuncio en redes, buscó en Google, abrió un correo…) y ver cuánto se equivoca la regla más usada, el "último clic".
 
@@ -216,7 +216,29 @@ Todo quedó en **Parquet** y se consulta con **DuckDB** en memoria (sin base de 
 - **Shapley:** reparte el mérito promediando lo que aporta cada canal en todas las combinaciones posibles; viene de la teoría de juegos.
 - **Por qué el benchmark:** en datos reales no se sabe qué canal causó la venta. Este dataset se generó con reglas conocidas y trae la atribución Shapley verdadera, así que se puede medir el error de cada método.
 
-**Lo que vas a decidir tú:** qué método de atribución usar para repartir el presupuesto y qué hacer con canales "baratos" como e-mail u orgánico que aparecen en muchos recorridos.
+**Lo que salió:**
+
+- Todas las reglas (último clic, primer clic, lineal, decaimiento, en U), Markov y el Shapley "con datos" se equivocan unos 2 puntos por canal, y en la misma dirección: inflan display (+5 a +6 pp) y castigan búsqueda pagada (−4 a −6 pp). Reparten según quién **aparece**, no según quién **causa**.
+- El **Shapley sobre un modelo de conversión** (cuánto sube la probabilidad cada canal) se equivoca 0,30 puntos: siete veces menos.
+- Con último clic, display parece un 32% más barato por conversión de lo que es y búsqueda pagada un 17% más cara: se invertiría de más en display.
+- E-mail es el más barato por conversión; se escala con prueba controlada. Orgánica y directo son costo fijo.
+
+---
+
+## Sesión 10 · Marketing Mix Modeling — lo que viene
+
+**Ahora vamos a…** estimar, con series **semanales** de ventas y gasto por canal, cuánto aporta cada canal y dónde poner el siguiente peso. Es la mirada "desde arriba", sin seguir a cada cliente.
+
+**Para esto hay que saber…**
+
+- **MMM:** una regresión de las ventas semanales sobre el gasto de cada canal, con estacionalidad y tendencia. No necesita datos de cada cliente, solo totales por semana, así que funciona aunque no haya cookies.
+- **Adstock (arrastre):** lo que se pauta esta semana sigue empujando ventas las semanas siguientes y se va apagando. Se modela con una tasa de decaimiento por canal.
+- **Saturación:** el primer peso en un canal rinde más que el último; a partir de cierto gasto, más inversión casi no suma. Se modela con una curva en forma de S o de rendimientos decrecientes.
+- **Bayesiano:** se le dan al modelo rangos razonables para el arrastre y la saturación (*priors*), y devuelve una distribución de lo que aporta cada canal, no un solo número.
+- **Gasto endógeno:** en la vida real se gasta más cuando se espera vender más (temporada alta). Eso hace que el gasto "parezca" más efectivo de lo que es; es el sesgo de selección del MMM.
+- **Por qué datos sintéticos:** para saber si el MMM acierta hay que conocer el efecto verdadero. Generamos las series con efectos conocidos y le pedimos al modelo que los encuentre.
+
+**Lo que vas a decidir tú:** qué tan realista hacer el gasto endógeno, qué *priors* usar y cómo repartir un presupuesto fijo entre canales con el modelo.
 
 ---
 

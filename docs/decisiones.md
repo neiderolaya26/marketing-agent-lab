@@ -199,3 +199,29 @@ Cada decisión importante del proyecto queda aquí, **escrita por Neider**: qué
   - **Conclusión:** el efecto de las campañas tipo A **no se distingue de 0**. El método está bien calibrado (los placebos pasan), pero el efecto es demasiado chico para verlo con esta muestra: a lo sumo +6 USD por semana (+11%).
   - **Recomendación:** dejar un **grupo de control sorteado** en las próximas campañas. Como una sola campaña no alcanza, ese control hay que acumularlo entre campañas o medir a escala de cadena (miles de hogares) antes de decidir si las campañas pagan sus cupones.
 - **Por qué (en mis palabras):** La comparación ingenua decía que la campaña sube el gasto 57%, pero solo estaba midiendo que se la mandaron a los mejores clientes. Corregida la selección, no queda un efecto que se pueda separar del ruido. No digo que las campañas no sirvan: digo que con estos datos no se puede saber, y que la única forma de saberlo es un grupo de control al azar, aunque tenga que ser grande.
+
+---
+
+## 013 — Método de atribución y canales baratos
+
+- **Fecha:** 2026-11-13
+- **Contexto** (`notebooks/09_atribucion.ipynb`, `python -m growth_lab.atribucion`): 500 mil recorridos sintéticos por 7 canales (6% convierte) con la atribución Shapley verdadera. Error absoluto medio de la participación por canal contra la verdad:
+
+  | Método | Error (pp) | Display | Búsqueda pagada |
+  |---|---|---|---|
+  | **Shapley sobre modelo de conversión** | **0,30** [0,29; 0,30] | +0,6 | −0,3 |
+  | Último clic | 1,99 [1,90; 2,08] | +5,4 | −3,8 |
+  | Decaimiento temporal | 2,10 | +5,5 | −4,2 |
+  | Shapley con datos (Zhao) | 2,18 | +5,6 | −5,2 |
+  | En U | 2,22 | +5,7 | −4,6 |
+  | Lineal | 2,23 | +5,8 | −4,6 |
+  | Markov | 2,34 [2,29; 2,38] | +5,9 | −6,3 |
+  | Primer clic | 2,43 | +6,1 | −5,3 |
+
+  - Todas las reglas, Markov y el Shapley con datos reparten según **quién aparece** en el recorrido; display aparece mucho y causa poco. El Shapley sobre un modelo de conversión (regresión logística sobre la exposición con decaimiento, con cross-fitting) mide cuánto sube la probabilidad cada canal.
+  - En costo por conversión, el último clic hace ver a display un 32% más barato de lo que es (20,0 contra 29,6) y a búsqueda pagada un 17% más cara (49,4 contra 42,4).
+  - Limitación: el modelo tiene la misma forma que el proceso que generó los datos; con datos reales la ventaja sería menor y habría que validarlo con experimentos.
+- **Decisión:**
+  - **Atribución con Shapley sobre un modelo de conversión** (`atribucion.METODO_ELEGIDO`), validada contra experimentos y el MMM cuando existan.
+  - **Canales baratos:** e-mail (1,97 por conversión, 20 veces menos que búsqueda pagada) se escala con una **prueba controlada**, porque su rendimiento cae con la frecuencia. Orgánica y directo siguen como **costo fijo**, sin ROI de pauta (decisión 004).
+- **Por qué (en mis palabras):** Ninguna regla simple sirve para repartir presupuesto: todas premian al canal que más aparece, no al que más vende. Un modelo que mide cuánto sube la conversión cada canal se acerca a la verdad siete veces más. E-mail es el más barato, pero no infinito: hay que probar cuánto aguanta antes de cargarlo.
