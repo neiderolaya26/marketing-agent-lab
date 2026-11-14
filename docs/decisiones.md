@@ -117,3 +117,32 @@ Cada decisión importante del proyecto queda aquí, **escrita por Neider**: qué
   - Por segmento, la tasa de churn es Dormidos 37%, Enfriándose 27%, Regulares 16% y Núcleo 10%, pero el gasto en riesgo es Núcleo 37 mil USD, Regulares 23 mil, Enfriándose 12,6 mil y Dormidos 1,2 mil. El 20% de hogares con más riesgo concentra el 58% de ese riesgo.
 - **Decisión:** **CLV con LightGBM**, **churn con el clasificador LightGBM** y la retención se **prioriza por hogar** con el gasto en riesgo = P(churn) × la mitad del gasto de jul–sep, no por segmento.
 - **Por qué (en mis palabras):** LightGBM le gana por poco al ingenuo (no es significativo y lo digo así), pero es el único que además da una probabilidad de churn que funciona. El BG/NBD está pensado para el cliente que se va del todo y aquí casi nadie lo hace. Cambio mi apuesta de la sesión 3: no priorizo un segmento sino a los hogares con más plata en riesgo, y la sesión 7 dirá a cuáles de ellos la campaña les cambia la decisión.
+
+---
+
+## 008 — Diseño del experimento: métrica, efecto mínimo y lectura
+
+- **Fecha:** 2026-11-13
+- **Contexto:** Hillstrom sorteó 64.000 clientes en tres grupos de ~21.300 (sin e-mail, e-mail de hombres, e-mail de mujeres) y midió visita, conversión y gasto a 2 semanas. El gasto tiene mucho ruido: en el control la media es 0,65 USD con desviación de 11,6 (casi todos gastan 0).
+- **Decisión:**
+  - **Métrica principal: gasto** por cliente; **visita** como métrica guía. Si discrepan, manda el gasto.
+  - **Efecto mínimo a detectar: +50% del gasto** (80% de potencia, α = 5%). Necesita 19.788 por grupo y hay 21.306: con esta muestra se detecta desde +48%. Un efecto menor no se distinguiría del ruido y lo digo así.
+  - **Lectura clásica y bayesiana:** IC y p-valor con corrección de Holm por comparar dos e-mails, y probabilidad de que cada e-mail sea mejor con su pérdida esperada.
+- **Por qué (en mis palabras):** Fijo la métrica antes de mirar para no quedarme con la que salió mejor. Elijo el gasto porque es la plata, aunque tenga ruido, y uso la visita para ver rápido si algo se mueve. Leer de las dos formas me deja comunicarlo con probabilidades sin perder el rigor del p-valor.
+
+---
+
+## 009 — Resultado, margen y regla de lectura de experimentos
+
+- **Fecha:** 2026-11-13
+- **Contexto** (`notebooks/06_experimentos.ipynb`, `python -m growth_lab.experimentos`):
+  - El sorteo salió bien: SRM p = 0,90 y |SMD| máximo = 0,014.
+  - Gasto: e-mail de hombres **+0,77 USD por cliente** (IC 95% [0,49; 1,05], +118%) y de mujeres **+0,42** ([0,17; 0,68], +65%), ambos significativos con Holm; el bootstrap da el mismo IC. Hombres le gana a mujeres por +0,35 (p = 0,03).
+  - CUPED con `history` reduce la varianza del gasto 0,04%, y el ajuste con todas las variables previas, 0,1% (2,8% en la visita): las variables previas casi no predicen el resultado.
+  - *Peeking*: mirar 20 veces y parar al primer p < 0,05 da **23% de falsos positivos** (simulación A/A); con límites de O'Brien-Fleming calibrados, 4,7%. Ambos e-mails cruzan el límite con la mitad de la muestra.
+  - Bayesiano: P(mejor) > 99,9% para ambos en gasto; mejora esperada +121% (hombres) y +67% (mujeres).
+- **Decisión:**
+  - **Recomendación:** mandar el **e-mail de hombres a todos** mientras la sesión 7 (uplift) dice a quién conviene personalizar.
+  - **Margen supuesto de 30%** (`experimentos.MARGEN`, sensibilidad 20–40%): el costo máximo por correo es 0,23 USD (hombres) y 0,13 (mujeres); con el límite inferior del IC, 0,15 y 0,05.
+  - **Regla de lectura:** los experimentos del lab se leen de forma **secuencial con límites de O'Brien-Fleming** calibrados por simulación.
+- **Por qué (en mis palabras):** Los dos correos funcionan y el de hombres es el mejor en promedio, así que es la opción segura hoy. Un correo cuesta centavos y deja hasta 0,23 USD de margen, así que es rentable con cualquier margen razonable. Y aprendí que mirar el resultado todos los días sin corregir convierte un 5% de error en un 23%.
