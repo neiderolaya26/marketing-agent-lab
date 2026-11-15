@@ -1,6 +1,8 @@
 """Sesión 12: registro, servidor MCP y calificación de los evals (sin API)."""
 import asyncio
+import os
 import sys
+from pathlib import Path
 
 import pytest
 
@@ -75,7 +77,9 @@ def test_servidor_mcp_con_cliente_real():
     from mcp.client.stdio import stdio_client
 
     async def probar():
-        params = StdioServerParameters(command=sys.executable, args=["-m", "growth_lab.servidor_mcp"])
+        src = str(Path(ev.__file__).resolve().parents[1])  # en CI el paquete no está instalado, solo en el path
+        entorno = {**os.environ, "PYTHONPATH": os.pathsep.join(filter(None, [src, os.environ.get("PYTHONPATH")]))}
+        params = StdioServerParameters(command=sys.executable, args=["-m", "growth_lab.servidor_mcp"], env=entorno)
         async with stdio_client(params) as (r, w), ClientSession(r, w) as s:
             await s.initialize()
             tools = (await s.list_tools()).tools
