@@ -18,7 +18,7 @@ from mcp.types import ToolAnnotations
 from pydantic import BaseModel, Field
 
 from growth_lab import db, mmm
-from growth_lab.agente import DECISIONES, Herramientas
+from growth_lab.agente import DECISIONES, Herramientas, sin_verdad
 
 servidor = MCPServer(
     name="marketing-lab",
@@ -106,7 +106,7 @@ def roi_mmm() -> dict[str, Any]:
 @servidor.tool(structured_output=True, annotations=SOLO_LECTURA)
 def plan_utilidad() -> dict[str, Any]:
     """Reparto que maximiza la utilidad (cada canal ±30%, total sin subir, búsqueda congelada) (decisión 016)."""
-    return _Contexto.h().plan_utilidad()
+    return sin_verdad(_Contexto.h().plan_utilidad())
 
 
 @servidor.tool(structured_output=True, annotations=SOLO_LECTURA)
@@ -115,7 +115,7 @@ def simular_reparto(cambios: list[Cambio]) -> dict[str, Any]:
     No ejecuta nada: solo calcula."""
     if not cambios:
         raise ToolError("Pasa al menos un cambio")
-    return _Contexto.h().simular_reparto([c.model_dump() for c in cambios])
+    return sin_verdad(_Contexto.h().simular_reparto([c.model_dump() for c in cambios]))
 
 
 @servidor.resource("marketing://decisiones", name="decisiones", mime_type="text/markdown",

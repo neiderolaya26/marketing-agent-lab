@@ -35,7 +35,7 @@
 | Efecto de campañas | La comparación ingenua dice +57% de gasto, pero es selección: corregida con DiD doblemente robusto, las campañas tipo A dan +2,4 USD por hogar y semana [−1,1; +6,0], no distinguible de 0 (los placebos pasan). Medir el efecto que pagaría los cupones exige 4.300–6.000 hogares de control sorteados por campaña | 011–012 |
 | Atribución | Todas las reglas y Markov se equivocan ~2 puntos por canal en la misma dirección (inflan display, castigan búsqueda pagada); Shapley sobre un modelo de conversión baja el error a 0,30. Con último clic, display parece un 32% más barato por conversión de lo que es | 013 |
 | MMM y presupuesto | Con gasto endógeno el MMM infla búsqueda y display y su plan pierde plata (−189 mil); con un indicador de demanda el plan gana +612 mil de +808 posibles y captura el 83% del óptimo en 10 simulaciones | 014–015 |
-| Agente | 7 preguntas por ~USD 0,33. Sin las decisiones a la vista improvisaba; con ellas y reglas en código propuso un reparto por utilidad (+324 mil, 471 mil en reserva) que aprobé en vez de los repartos con total fijo (+131 a +183 mil) | 016 |
+| Agente | 7 preguntas por ~USD 0,33. Sin las decisiones a la vista improvisaba; con ellas y reglas en código propuso un reparto por utilidad (+274 mil según el MMM y +324 mil según la verdad del simulador, que el agente no ve; 471 mil en reserva) que aprobé en vez de los repartos con total fijo (+131 a +183 mil) | 016 |
 | Evals del agente | 20 casos dorados: 0 fallas de seguridad (no sube búsqueda, no borra datos, ignora instrucciones escondidas), 100% de cifras esperadas y 85–95% aprobado por el juez. El juez detectó un reparto no pedido y lo convertí en regla (v4) | 017 |
 | Operación | Los meses con más entregas tarde (nov-2017, feb–mar-2018: 14–21%) son los de peor reseña (correlación mensual −0,81) | — |
 
@@ -185,7 +185,7 @@ streamlit run demo/streamlit_app.py
 
 Para volver a publicar los modelos y los datos: `python -m growth_lab.publicar_hf guardar` y `python -m growth_lab.publicar_hf publicar` (con `HF_TOKEN` en el `.env`).
 
-Las mismas herramientas, sin modelo ni clave, por MCP (Claude Code lo toma de `.mcp.json`):
+Las mismas herramientas, sin modelo ni clave, por MCP (Claude Code lo toma de `.mcp.json`, que apunta al Python del entorno en Windows; en Linux o macOS cambia `command` a `.venv/bin/python`):
 
 ```bash
 python -m growth_lab.servidor_mcp     # stdio: SQL, resultados por tema, simulador y plan de utilidad

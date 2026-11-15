@@ -128,3 +128,19 @@ def test_trazas_solo_si_se_piden_y_hay_clave(monkeypatch):
     assert ag.quiere_trazas(True)
     monkeypatch.setenv("MARKETING_LAB_TRAZAR", "1")
     assert ag.quiere_trazas()
+
+
+def test_el_modelo_no_ve_la_verdad_del_simulador(herr):
+    cambios = [{"canal": "tv", "cambio_pct": 10}, {"canal": "social", "cambio_pct": -30}]
+    assert ag.VERDAD_SIMULADOR in herr.simular_reparto(cambios)  # la persona que aprueba y las evals sí la ven
+    fn = ag.funciones(herr, "presupuesto")
+    for salida in (fn["simular_reparto"]({"cambios": cambios}), fn["plan_utilidad"]({})):
+        assert ag.VERDAD_SIMULADOR not in str(salida)
+        assert "utilidad_extra_segun_modelo" in str(salida)
+
+
+def test_reglas_del_reparto_en_los_bordes():
+    assert ag.validar_reparto([{"canal": "social", "cambio_pct": -30}]) == []  # el límite de ±30% se puede tocar
+    assert "límite" in ag.validar_reparto([{"canal": "social", "cambio_pct": -30.5}])[0]
+    assert "desconocido" in ag.validar_reparto([{"canal": "radio", "cambio_pct": 5}])[0]
+    assert ag.validar_reparto([]) == []
