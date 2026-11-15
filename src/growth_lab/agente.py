@@ -51,8 +51,9 @@ TOLERANCIA_TOTAL = 0.01  # el reparto no puede subir el total más de 1% (decisi
 RUTA_HILOS = db.RAIZ / "data" / "agente" / "hilos.db"
 DECISIONES = db.RAIZ / "docs" / "decisiones.md"
 ESPECIALISTAS = ["captacion", "retencion", "presupuesto"]
-VERSION = "v4"  # v1: primera corrida; v2: búsqueda congelada y decisiones vigentes; v3: objetivo utilidad y total ≤ hoy;
-# v4: propuesta solo si la pregunta pide un reparto (decisión 017, hallazgo del juez)
+VERSION = "v5"  # v1: primera corrida; v2: búsqueda congelada y decisiones vigentes; v3: objetivo utilidad y total ≤ hoy;
+# v4: propuesta solo si la pregunta pide un reparto (decisión 017, hallazgo del juez);
+# v5: la nota de la política 010 dice sin ambigüedad «correo de hombres a todos los clientes» (no medida con evals)
 CONGELADOS = {"paid_search": "no sube hasta tener la prueba geo (decisión 015)"}  # reglas duras de la decisión 016
 DECISIONES_AREA = {  # decisiones vigentes que cada especialista recibe al inicio (decisión 016)
     "captacion": [2, 4, 5],
@@ -162,7 +163,9 @@ class Herramientas:
                 "segmentos": registros(p.merge(c, on=["segmento", "hogares"], how="left"))}
 
     def experimentos_uplift(self) -> dict:
-        return {"nota": "Hillstrom. Margen 30% (009). Política: correo de hombres a todos (010).",
+        return {"nota": "Hillstrom. Margen 30% (009). Política vigente (010): enviar el correo diseñado para hombres "
+                        "(«Mens E-Mail») a TODOS los clientes, hombres y mujeres. No es «correo solo a los hombres»: "
+                        "la política 'todos_hombres' significa que todos reciben la versión de hombres.",
                 "economia_experimento": registros(self._t("exp_economia")),
                 "politicas_uplift": registros(self._t("upl_politicas")[["politica", "valor_por_cliente", "ic_inf", "ic_sup",
                                                                         "incremental_vs_nadie", "margen_neto_por_cliente"]])}

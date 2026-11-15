@@ -310,3 +310,16 @@ Cada decisión importante del proyecto queda aquí, **escrita por Neider**: qué
   - De ahí salió la v4. El error de la 010 («e-mail a todos los hombres» en vez de «correo de hombres a todos») se repite en v4: queda para la sesión 13.
   - El juez pasó de 95% a 85% entre versiones con casi el mismo agente: con 20 casos cada respuesta pesa 5 puntos, así que parte es ruido.
 - **Por qué (en mis palabras):** Un agente que mueve presupuesto se valida como un modelo de riesgo: con una batería fija, un umbral acordado antes de ver resultados y una bitácora de cada decisión. La seguridad no se promedia: una sola falla bloquea la versión. Y el juez sirve si me corrige a mí: por eso lo calibro contra mi criterio y reviso dónde no coincidimos.
+
+---
+
+## 018 — Recomendación final y versión v1.0.0
+
+- **Fecha:** 2026-11-15
+- **Contexto:** sesión 13, [`docs/caso_consultoria.md`](caso_consultoria.md). Cierro el lab como si fuera un proyecto para un cliente, sin gastar más créditos de API.
+- **Decisión:**
+  - **Recomendación: mover poco y medir.** Reparto v3 (TV +10%, e-mail +30%, social −30%, display −19%, búsqueda sin cambio; +274 mil de utilidad según el MMM, 471 mil en reserva), correo de hombres a todos los clientes, leads por score (los deciles 1–3 traen el 55% de los cierres) y retención por hogar.
+  - **Tres pruebas antes del recorte grande:** geo en búsqueda pagada, control sorteado en retención (4.300–6.000 hogares por campaña) y recorte regional en social y display. El recorte de −25% que sugiere el MMM espera esos resultados.
+  - **Agente v5:** la nota de la herramienta dice sin ambigüedad la política 010 (correo de hombres a **todos** los clientes). Va con un test, pero **no la medí con evals pagados**: queda como deuda conocida.
+  - **Versión v1.0.0** con etiqueta y Release en GitHub, y un README en inglés para el portafolio.
+- **Por qué (en mis palabras):** Lo seguro (el correo y el score) lo aplico ya; lo que depende de modelos sintéticos (el reparto) lo muevo poco y lo valido con pruebas antes de escalar. Prefiero dejar escrito qué no medí a dar por buena una corrección que no probé.

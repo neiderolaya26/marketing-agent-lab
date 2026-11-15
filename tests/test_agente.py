@@ -111,3 +111,9 @@ def test_propuesta_no_pedida_se_descarta(herr):
     e = ag.preguntar(ag.construir(cli, herr, checkpointer=InMemorySaver()), "resumen ejecutivo")
     assert "__interrupt__" not in e and e["final"]["estado"] == "respondida" and e["final"]["propuesta"] == []
     assert e["coordinador"]["propuesta_descartada"] == [{"canal": "tv", "cambio_pct": -10.0}]
+
+
+def test_nota_de_la_politica_010_no_es_ambigua(herr):
+    # hallazgo del juez (sesión 12): el agente decía «e-mail a todos los hombres»
+    nota = herr.experimentos_uplift()["nota"]
+    assert "TODOS los clientes" in nota and "No es «correo solo a los hombres»" in nota

@@ -14,6 +14,7 @@ Términos del lab en palabras simples. Crece en cada sesión. La columna "En cr�
 | **CAC** (costo de adquisición de cliente) | Cuánto cuesta conseguir un cliente: gasto en marketing / clientes nuevos | Costo por desembolso |
 | **Calibración del juez** | Comparar lo que califica el juez con lo que califica una persona en las mismas respuestas. Se mide con el acuerdo y con kappa | Validar un modelo contra la revisión de un analista |
 | **Canal** | Por dónde llegó el lead: búsqueda pagada (Google Ads), orgánica (SEO), social, e-mail, display (banners), referidos, directo | Canal de originación |
+| **Caso de consultoría** | El entregable para un gerente: problema, hallazgos, recomendación con su valor y confianza, plan y límites | Memo de comité de la política final |
 | **Caso dorado** | Una pregunta fija con su respuesta correcta conocida (las cifras que debe dar, a quién debe consultar). Se corren en cada cambio del agente | Backtest de la política con casos conocidos |
 | **Cohorte** | Grupo que empezó en el mismo período (mes de primera compra) y se sigue en el tiempo | Cosecha |
 | **Comisión** | Lo que Olist se queda de cada venta de un vendedor. No es pública; suponemos 15% | Tasa / margen financiero |
@@ -21,6 +22,7 @@ Términos del lab en palabras simples. Crece en cada sesión. La columna "En cr�
 | **Control de demanda** | Una serie que se mueve con la demanda (búsquedas de la categoría en Google Trends, por ejemplo). En el MMM evita que la venta que iba a llegar igual se le atribuya a la pauta | Controlar por el ciclo económico al medir una política |
 | **CPL** (costo por lead) | Cuánto se paga por cada lead | Costo por solicitud |
 | **CPL de equilibrio** | El máximo que puedes pagar por un lead sin perder plata = ingreso esperado por lead | Tasa de equilibrio (ROI = 0) |
+| **Deuda conocida** | Lo que queda pendiente y se deja escrito con su porqué, para no dar por bueno lo que no se midió | Limitaciones del modelo en la documentación de validación |
 | **Display** | Anuncios gráficos (banners) en sitios web | — |
 | **Embudo** (*funnel*) | Las etapas que recorre un prospecto: lead → contrato → vendedor que vende | Solicitud → aprobación → desembolso → buen pago |
 | **η² (eta cuadrado)** | Qué parte de la variación de una cifra (el gasto futuro) explican los grupos (los segmentos). 0,47 = los segmentos explican el 47% | Como el R² de una regresión con una variable categórica |
@@ -50,6 +52,7 @@ Términos del lab en palabras simples. Crece en cada sesión. La columna "En cr�
 | **Prior** | Lo que se cree razonable antes de ver los datos (por ejemplo, que el ROI de un canal está entre 0 y 10). Evita que el modelo invente valores absurdos cuando hay pocos datos | Juicio experto en un scorecard con pocos malos |
 | **Prueba geográfica** | Experimento por regiones: se apaga o sube un canal en unas regiones y se mantiene en otras, y se comparan las ventas. Mide el efecto real de un canal sin seguir a cada cliente | Piloto de política en unas sucursales |
 | **Registro de ejecuciones** | Bitácora de cada pregunta: respuesta, herramientas usadas, costo, tiempo y firma humana | Log de decisiones del motor |
+| **Release** | Versión etiquetada del repositorio (v1.0.0) con notas de lo que incluye; es la foto que se muestra en el portafolio | Versión aprobada de un modelo en producción |
 | **RFM** | Segmentación clásica de clientes por **R**ecencia (días desde la última compra), **F**recuencia (cuántas compras) y **M**onto (cuánto gastó) | Comportamiento de pago reciente |
 | **ROI incremental** | Valor que trajo la acción **y que no habría ocurrido sin ella**, dividido por lo que costó | ROI ajustado por riesgo |
 | **ROI marginal** | Lo que rinde el **próximo** peso invertido en un canal, no el promedio de todo lo gastado. Es el que manda para mover presupuesto | Rentabilidad del siguiente tramo de cupo |

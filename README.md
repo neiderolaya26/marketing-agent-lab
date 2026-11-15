@@ -1,15 +1,25 @@
 # marketing-agent-lab
 
-> 🚧 v0.1 en construcción · Proyecto construido sesión a sesión, con cada decisión registrada en [docs/decisiones.md](docs/decisiones.md). · Repo 2 del portafolio (el 1 es `credit-risk-agent-lab`).
+> ✅ v1.0.0 · Proyecto construido en 13 sesiones, con cada decisión registrada en [docs/decisiones.md](docs/decisiones.md). · [English summary](README.en.md) · Repo 2 del portafolio (el 1 es `credit-risk-agent-lab`).
 
 - **Fecha de inicio:** 2026-11-10
-- **Estado:** En curso (modo guiado: Neider decide y escribe las decisiones; Claude arma el esqueleto y explica)
+- **Estado:** Terminado, v1.0.0 (2026-11-15). Modo guiado: Neider decide y escribe las decisiones; Claude arma el código y explica
 
 ## Pregunta de negocio (decisión 001)
 
 ¿Se puede, **solo con datos públicos**, construir un sistema que diga **dónde poner el presupuesto de marketing**, es decir qué canal, qué cliente y qué campaña generan **valor incremental** y no solo conversiones, y que un **agente de IA "analista de growth"** responda preguntas de negocio y proponga campañas con su impacto estimado?
 
-## Resultados hasta ahora
+## Recomendación (caso de consultoría, decisión 018)
+
+**Mover poco, ganar ya lo seguro y medir antes de escalar** ([caso completo](docs/caso_consultoria.md)):
+
+1. Reasignar la pauta por **utilidad**: TV +10%, e-mail +30%, social −30%, display −19% y búsqueda pagada sin cambio. Utilidad +274 mil USD al año según el MMM, con 471 mil en reserva.
+2. Mandar el **correo de hombres a todos** los clientes: +0,77 USD de gasto por cliente; rentable hasta 0,23 USD por correo.
+3. Atender primero los **deciles 1–3 del score**: traen el 55% de los cierres con el 30% de los leads.
+4. **Retención por hogar**: el 20% de hogares con más riesgo junta el 58% del gasto en riesgo.
+5. **Tres pruebas** antes del recorte grande: geo en búsqueda pagada, control sorteado en retención y recorte regional en social y display.
+
+## Resultados
 
 | Pieza | Resultado | Decisión |
 |---|---|---|
@@ -51,6 +61,7 @@
 
 ## Para aprender
 
+- [Caso de consultoría](docs/caso_consultoria.md): la recomendación final para un gerente, en una página.
 - [Guía del lab](docs/guia.md): qué hacemos en cada sesión, qué hay que saber y qué salió, en palabras simples.
 - [Glosario](docs/glosario.md): los términos de marketing con su equivalente en riesgo de crédito.
 
@@ -79,7 +90,7 @@ Primeros hechos (`python -m growth_lab.ingest`):
 - **Hillstrom:** el e-mail de hombres lleva la conversión de 0,57% a 1,25%. **Lenta:** el SMS lleva la respuesta de 10,3% a 11,0%.
 - **Atribución:** 6,0% de los recorridos convierte, con 2,7 toques en promedio. Los canales se llaman igual que en el embudo de Olist (paid_search, social, email…), así que su costo por toque sirve para suponer el CAC por canal.
 
-## Hoja de ruta (tentativa)
+## Hoja de ruta
 
 | Sesión | Tema (bloque de la ruta) | Técnicas del catálogo | Datos |
 |---|---|---|---|
@@ -95,7 +106,7 @@ Primeros hechos (`python -m growth_lab.ingest`):
 | 10 ✅ | Marketing Mix Modeling | MMM con priors, calibración con experimento e indicador de demanda contra la verdad; presupuesto con ±30% por canal (notebook 10) | MMM sintético |
 | 11 ✅ | Agente "analista de growth" | LangGraph + Claude: enrutador, 3 especialistas con SQL y herramientas, coordinador, reglas en código y aprobación humana del reparto (notebook 11) | Todas |
 | 12 ✅ | Operación | Servidor MCP de solo lectura, registro en SQLite, 20 casos dorados con juez calibrado (notebook 12) | Todas |
-| 13 | Caso de consultoría | Recomendación de presupuesto, demo, README final, release v1.0.0 | Todas |
+| 13 ✅ | Caso de consultoría | Recomendación con valor y confianza, plan de 90 días con 3 pruebas, agente v5, README en inglés y release v1.0.0 ([caso](docs/caso_consultoria.md)) | Todas |
 
 ```mermaid
 flowchart LR
@@ -186,7 +197,8 @@ Complete Journey y Lenta no se publican por licencia: solo sus agregados y resul
 data/raw/          crudos descargados (no se suben)
 data/interim/      Parquet de todas las fuentes (no se suben)
 data/processed/    Parquet publicados: fuentes con licencia abierta + derivados de cada sesión
-docs/              decisiones.md, imágenes
+docs/              decisiones.md, caso_consultoria.md, guia.md, glosario.md, imágenes
+evals/             casos dorados y resultados de los evals del agente
 notebooks/         un notebook por sesión, con mis conclusiones
 src/growth_lab/    código del pipeline, modelos y agente
 tests/             pruebas que no necesitan datos
@@ -195,6 +207,7 @@ tests/             pruebas que no necesitan datos
 ## Bitácora
 
 - 2026-11-10: inicio. Datos de Olist y Hillstrom ingeridos, hoja de ruta tomada de la ruta Paid Media, decisión 001 planteada.
+- 2026-11-15: sesión 13: caso de consultoría, agente v5, README en inglés y versión v1.0.0, decisión 018.
 - 2026-11-15: sesión 12: servidor MCP, registro de ejecuciones y evals con juez calibrado, decisión 017.
 - 2026-11-15: sesión 11: agente analista de growth (LangGraph + Claude) con aprobación humana, decisión 016.
 - 2026-11-15: sesión 10: MMM con verdad conocida y plan de presupuesto, decisiones 014–015.
