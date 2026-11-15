@@ -1,9 +1,11 @@
 # marketing-agent-lab
 
-> ✅ v1.0.0 · Proyecto construido en 13 sesiones, con cada decisión registrada en [docs/decisiones.md](docs/decisiones.md). · [English summary](README.en.md) · Repo 2 del portafolio (el 1 es `credit-risk-agent-lab`).
+> ✅ v1.1.0 · Proyecto construido en 13 sesiones, con cada decisión registrada en [docs/decisiones.md](docs/decisiones.md). · [English summary](README.en.md) · Repo 2 del portafolio (el 1 es `credit-risk-agent-lab`).
 
 - **Fecha de inicio:** 2026-11-10
-- **Estado:** Terminado, v1.0.0 (2026-11-15). Modo guiado: Neider decide y escribe las decisiones; Claude arma el código y explica
+- **Estado:** Terminado, v1.1.0 (2026-11-15). Modo guiado: Neider decide y escribe las decisiones; Claude arma el código y explica
+
+**Pruébalo:** demo del lab en Streamlit, sin LLM (`demo/streamlit_app.py`) · [modelos y ficha en Hugging Face](https://huggingface.co/neiderolaya26/marketing-agent-lab) · [datos en Hugging Face](https://huggingface.co/datasets/neiderolaya26/marketing-agent-lab-data)
 
 ## Pregunta de negocio (decisión 001)
 
@@ -172,6 +174,17 @@ python -m growth_lab.agente "¿Display está sobrevalorado?"
 python -m growth_lab.agente "Propón cómo repartir el presupuesto de medios"   # pide tu aprobación en consola
 ```
 
+Las trazas en LangSmith solo se envían si se piden: `--trazar` o `MARKETING_LAB_TRAZAR=1`, con `LANGSMITH_API_KEY` en el `.env` (proyecto `marketing-agent-lab`).
+
+La demo (sin LLM; descarga los modelos de Hugging Face la primera vez):
+
+```bash
+pip install -r demo/requirements.txt
+streamlit run demo/streamlit_app.py
+```
+
+Para volver a publicar los modelos y los datos: `python -m growth_lab.publicar_hf guardar` y `python -m growth_lab.publicar_hf publicar` (con `HF_TOKEN` en el `.env`).
+
 Las mismas herramientas, sin modelo ni clave, por MCP (Claude Code lo toma de `.mcp.json`):
 
 ```bash
@@ -199,6 +212,8 @@ data/interim/      Parquet de todas las fuentes (no se suben)
 data/processed/    Parquet publicados: fuentes con licencia abierta + derivados de cada sesión
 docs/              decisiones.md, caso_consultoria.md, guia.md, glosario.md, imágenes
 evals/             casos dorados y resultados de los evals del agente
+demo/              app de Streamlit (sin LLM) y 200 leads de ejemplo
+huggingface/       fichas del modelo y del dataset publicados en Hugging Face
 notebooks/         un notebook por sesión, con mis conclusiones
 src/growth_lab/    código del pipeline, modelos y agente
 tests/             pruebas que no necesitan datos
@@ -207,6 +222,7 @@ tests/             pruebas que no necesitan datos
 ## Bitácora
 
 - 2026-11-10: inicio. Datos de Olist y Hillstrom ingeridos, hoja de ruta tomada de la ruta Paid Media, decisión 001 planteada.
+- 2026-11-15: v1.1.0: modelos y datos en Hugging Face, demo en Streamlit y trazas opcionales en LangSmith, decisión 019.
 - 2026-11-15: sesión 13: caso de consultoría, agente v5, README en inglés y versión v1.0.0, decisión 018.
 - 2026-11-15: sesión 12: servidor MCP, registro de ejecuciones y evals con juez calibrado, decisión 017.
 - 2026-11-15: sesión 11: agente analista de growth (LangGraph + Claude) con aprobación humana, decisión 016.

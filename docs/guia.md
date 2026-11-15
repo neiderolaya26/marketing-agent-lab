@@ -313,6 +313,22 @@ Todo quedó en **Parquet** y se consulta con **DuckDB** en memoria (sin base de 
 
 En 13 sesiones el lab pasó de los datos crudos a una recomendación de presupuesto: valor de un lead, score, segmentos, CLV, experimentos, uplift, efecto de campañas sin experimento, atribución y MMM con verdad conocida, un agente con aprobación humana y su operación con MCP, registro y evals. Lo que más se repitió: **la cifra que importa es la incremental y neta**, y cuando un modelo no se puede validar con la verdad, se valida con un experimento.
 
+
+---
+
+## Después del cierre · v1.1.0: modelos, demo y trazas
+
+**Lo que se agregó:**
+
+- **Hugging Face:** el [modelo de lead scoring y el MMM](https://huggingface.co/neiderolaya26/marketing-agent-lab) con su ficha, y el [dataset](https://huggingface.co/datasets/neiderolaya26/marketing-agent-lab-data) con los Parquet. El CLV no se publica por la licencia de Complete Journey.
+- **Demo en Streamlit** (`demo/streamlit_app.py`): se puede jugar con el simulador de presupuesto y ver cómo las reglas del agente frenan un reparto que sube el total o la búsqueda pagada. No usa ningún LLM.
+- **LangSmith:** las trazas del agente se activan solo si se piden (`--trazar`).
+
+**Para esto hay que saber…**
+
+- **Hugging Face Hub:** el "GitHub de los modelos": guarda archivos de modelos y datos con una ficha que explica cómo se entrenaron y sus límites.
+- **Streamlit Community Cloud:** hospeda gratis una app de Python conectada a un repo de GitHub; se actualiza sola con cada cambio en main.
+- **Trazas (LangSmith):** el registro paso a paso de lo que hizo el agente (qué nodo corrió, qué le preguntó a Claude, qué herramienta usó y cuánto tardó).
 ---
 
 ## Mapa de sesiones

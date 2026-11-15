@@ -494,11 +494,29 @@ class Estado(TypedDict, total=False):
     final: dict
 
 
-def cliente_anthropic():
+PROYECTO_LANGSMITH = "marketing-agent-lab"
+
+
+def quiere_trazas(trazar: bool | None = None) -> bool:
+    """Las trazas en LangSmith solo se envían si se piden (--trazar o MARKETING_LAB_TRAZAR=1) y hay
+    LANGSMITH_API_KEY (decisión 019). Por defecto el agente no manda nada a LangSmith."""
+    if trazar is None:
+        trazar = os.environ.get("MARKETING_LAB_TRAZAR", "").lower() in {"1", "true", "si", "sí"}
+    return bool(trazar and os.environ.get("LANGSMITH_API_KEY"))
+
+
+def cliente_anthropic(trazar: bool | None = None):
     import anthropic
 
     cargar_env()
-    return anthropic.Anthropic()
+    cliente = anthropic.Anthropic()
+    if quiere_trazas(trazar):  # traza cada llamada a Claude y, con LANGSMITH_TRACING, el grafo de LangGraph
+        from langsmith.wrappers import wrap_anthropic
+
+        os.environ["LANGSMITH_TRACING"] = "true"
+        os.environ.setdefault("LANGSMITH_PROJECT", PROYECTO_LANGSMITH)
+        cliente = wrap_anthropic(cliente)
+    return cliente
 
 
 def checkpointer_sqlite(ruta=RUTA_HILOS):
@@ -639,12 +657,13 @@ def main() -> None:
     p = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     p.add_argument("pregunta")
     p.add_argument("--modelo", default=MODELO, choices=sorted(PRECIOS))
+    p.add_argument("--trazar", action="store_true", help="Envía las trazas a LangSmith (requiere LANGSMITH_API_KEY)")
     a = p.parse_args()
     import time
 
     from growth_lab import registro
 
-    medidor = Medidor(cliente_anthropic(), a.modelo)
+    medidor = Medidor(cliente_anthropic(trazar=a.trazar or None), a.modelo)
     grafo = construir(medidor, modelo=a.modelo)
     t0 = time.time()
     estado = preguntar(grafo, a.pregunta)
