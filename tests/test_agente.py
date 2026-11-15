@@ -39,8 +39,9 @@ def herr():
     return ag.Herramientas()
 
 
-def ruta(*especialistas):
-    return ag.Ruta(encargos=[ag.Encargo(especialista=e, pregunta="?") for e in especialistas], fuera_de_alcance=False)
+def ruta(*especialistas, pide_reparto=True):
+    return ag.Ruta(encargos=[ag.Encargo(especialista=e, pregunta="?") for e in especialistas], fuera_de_alcance=False,
+                   pide_reparto=pide_reparto)
 
 
 def test_sql_solo_lectura(herr):
@@ -93,7 +94,7 @@ def test_propuesta_invalida_vuelve_al_coordinador_y_se_descarta(herr):
 
 
 def test_fuera_de_alcance_no_llama_especialistas(herr):
-    cli = ClienteFalso(ag.Ruta(encargos=[], fuera_de_alcance=True), [[]])
+    cli = ClienteFalso(ag.Ruta(encargos=[], fuera_de_alcance=True, pide_reparto=False), [[]])
     e = ag.preguntar(ag.construir(cli, herr, checkpointer=InMemorySaver()), "¿quién ganó el mundial?")
     assert e["final"]["especialistas"] == [] and cli.herramientas_usadas == []
 
@@ -103,3 +104,10 @@ def test_plan_utilidad_respeta_reglas_y_supera_hoy(herr):
     assert p["simulacion"]["fallas"] == []
     assert p["simulacion"]["utilidad_extra_segun_modelo"] > 0
     assert next(c for c in p["cambios"] if c["canal"] == "paid_search")["cambio_pct"] <= 0
+
+
+def test_propuesta_no_pedida_se_descarta(herr):
+    cli = ClienteFalso(ruta("presupuesto", pide_reparto=False), [[("tv", -10)]])
+    e = ag.preguntar(ag.construir(cli, herr, checkpointer=InMemorySaver()), "resumen ejecutivo")
+    assert "__interrupt__" not in e and e["final"]["estado"] == "respondida" and e["final"]["propuesta"] == []
+    assert e["coordinador"]["propuesta_descartada"] == [{"canal": "tv", "cambio_pct": -10.0}]

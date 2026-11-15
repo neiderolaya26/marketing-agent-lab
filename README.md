@@ -24,6 +24,7 @@
 | Atribución | Todas las reglas y Markov se equivocan ~2 puntos por canal en la misma dirección (inflan display, castigan búsqueda pagada); Shapley sobre un modelo de conversión baja el error a 0,30. Con último clic, display parece un 32% más barato por conversión de lo que es | 013 |
 | MMM y presupuesto | Con gasto endógeno el MMM infla búsqueda y display y su plan pierde plata (−189 mil); con un indicador de demanda el plan gana +612 mil de +808 posibles y captura el 83% del óptimo en 10 simulaciones | 014–015 |
 | Agente | 7 preguntas por ~USD 0,33. Sin las decisiones a la vista improvisaba; con ellas y reglas en código propuso un reparto por utilidad (+324 mil, 471 mil en reserva) que aprobé en vez de los repartos con total fijo (+131 a +183 mil) | 016 |
+| Evals del agente | 20 casos dorados: 0 fallas de seguridad (no sube búsqueda, no borra datos, ignora instrucciones escondidas), 100% de cifras esperadas y 85–95% aprobado por el juez. El juez detectó un reparto no pedido y lo convertí en regla (v4) | 017 |
 | Operación | Los meses con más entregas tarde (nov-2017, feb–mar-2018: 14–21%) son los de peor reseña (correlación mensual −0,81) | — |
 
 ![Valor de un lead por canal](docs/img/embudo_valor_por_lead.png)
@@ -45,6 +46,8 @@
 ![MMM: ROI por canal con y sin control de demanda](docs/img/mmm_roi.png)
 
 ![Agente: propuestas de reparto y su utilidad](docs/img/agt_propuestas.png)
+
+![Evals del agente: v3 contra v4](docs/img/evl_versiones.png)
 
 ## Para aprender
 
@@ -91,7 +94,7 @@ Primeros hechos (`python -m growth_lab.ingest`):
 | 9 ✅ | Atribución multitoque | 5 reglas, Markov, Shapley con datos y Shapley sobre modelo de conversión contra la verdad; costo por conversión (notebook 09) | Benchmark de atribución |
 | 10 ✅ | Marketing Mix Modeling | MMM con priors, calibración con experimento e indicador de demanda contra la verdad; presupuesto con ±30% por canal (notebook 10) | MMM sintético |
 | 11 ✅ | Agente "analista de growth" | LangGraph + Claude: enrutador, 3 especialistas con SQL y herramientas, coordinador, reglas en código y aprobación humana del reparto (notebook 11) | Todas |
-| 12 | Operación | Servidor MCP, registro de ejecuciones, evals (casos dorados, juez) | Todas |
+| 12 ✅ | Operación | Servidor MCP de solo lectura, registro en SQLite, 20 casos dorados con juez calibrado (notebook 12) | Todas |
 | 13 | Caso de consultoría | Recomendación de presupuesto, demo, README final, release v1.0.0 | Todas |
 
 ```mermaid
@@ -158,6 +161,13 @@ python -m growth_lab.agente "¿Display está sobrevalorado?"
 python -m growth_lab.agente "Propón cómo repartir el presupuesto de medios"   # pide tu aprobación en consola
 ```
 
+Las mismas herramientas, sin modelo ni clave, por MCP (Claude Code lo toma de `.mcp.json`):
+
+```bash
+python -m growth_lab.servidor_mcp     # stdio: SQL, resultados por tema, simulador y plan de utilidad
+python -m growth_lab.evals correr     # 20 casos dorados + juez (~USD 2); evals reporte publica evl_*
+```
+
 ### Datos publicados en el repo (`data/processed/`)
 
 | Tablas | Fuente y licencia | Qué se quitó |
@@ -166,7 +176,7 @@ python -m growth_lab.agente "Propón cómo repartir el presupuesto de medios"   
 | `hillstrom` | MineThatData | — |
 | `attr_journeys`, `attr_touchpoints` | Benchmark de atribución, CC BY 4.0 | — |
 
-Derivados por sesión: `embudo_canal`, `cohortes_compradores` y `kpis_mensuales` (sesión 2, `python -m growth_lab.embudo`); `segmentos_perfil` y `segmentos_comparacion` (sesión 3, `python -m growth_lab.segmentacion`, solo agregados de segmentos con ≥ 20 hogares); `leads_optuna`, `leads_metricas`, `leads_deciles`, `leads_importancia`, `leads_score`, `leads_estabilidad`, `leads_coeficientes`, `leads_cpu_vs_gpu` y `canales_rentabilidad` (sesión 4, `python -m growth_lab.leads_modelos 40` y `python -m growth_lab.leads`); `clv_metricas`, `clv_deciles`, `clv_churn`, `clv_churn_importancia`, `clv_parametros` y `clv_por_segmento` (sesión 5, `python -m growth_lab.clv`, solo agregados); `exp_balance`, `exp_potencia`, `exp_efectos`, `exp_cuped`, `exp_peeking`, `exp_secuencial`, `exp_bayes` y `exp_economia` (sesión 6, `python -m growth_lab.experimentos`); `upl_qini`, `upl_metricas` y `upl_politicas` (sesión 7, `python -m growth_lab.uplift`; de Lenta solo curvas y métricas); `cmp_efectos`, `cmp_evento` y `cmp_economia` (sesión 8, `python -m growth_lab.campanas`, solo agregados); `atr_participacion`, `atr_error` y `atr_costo_por_conversion` (sesión 9, `python -m growth_lab.atribucion`); `mmm_series`, `mmm_roi`, `mmm_error`, `mmm_presupuesto`, `mmm_presupuesto_resumen` y `mmm_robustez` (sesión 10, `python -m growth_lab.mmm`); `agt_demo` (sesión 11, corridas del agente con sus respuestas, costo y firma humana).
+Derivados por sesión: `embudo_canal`, `cohortes_compradores` y `kpis_mensuales` (sesión 2, `python -m growth_lab.embudo`); `segmentos_perfil` y `segmentos_comparacion` (sesión 3, `python -m growth_lab.segmentacion`, solo agregados de segmentos con ≥ 20 hogares); `leads_optuna`, `leads_metricas`, `leads_deciles`, `leads_importancia`, `leads_score`, `leads_estabilidad`, `leads_coeficientes`, `leads_cpu_vs_gpu` y `canales_rentabilidad` (sesión 4, `python -m growth_lab.leads_modelos 40` y `python -m growth_lab.leads`); `clv_metricas`, `clv_deciles`, `clv_churn`, `clv_churn_importancia`, `clv_parametros` y `clv_por_segmento` (sesión 5, `python -m growth_lab.clv`, solo agregados); `exp_balance`, `exp_potencia`, `exp_efectos`, `exp_cuped`, `exp_peeking`, `exp_secuencial`, `exp_bayes` y `exp_economia` (sesión 6, `python -m growth_lab.experimentos`); `upl_qini`, `upl_metricas` y `upl_politicas` (sesión 7, `python -m growth_lab.uplift`; de Lenta solo curvas y métricas); `cmp_efectos`, `cmp_evento` y `cmp_economia` (sesión 8, `python -m growth_lab.campanas`, solo agregados); `atr_participacion`, `atr_error` y `atr_costo_por_conversion` (sesión 9, `python -m growth_lab.atribucion`); `mmm_series`, `mmm_roi`, `mmm_error`, `mmm_presupuesto`, `mmm_presupuesto_resumen` y `mmm_robustez` (sesión 10, `python -m growth_lab.mmm`); `agt_demo` (sesión 11, corridas del agente con sus respuestas, costo y firma humana); `evl_resultados` y `evl_resumen` (sesión 12, `python -m growth_lab.evals`; los casos y las respuestas completas están en `evals/agente/`).
 
 Complete Journey y Lenta no se publican por licencia: solo sus agregados y resultados.
 
@@ -185,6 +195,7 @@ tests/             pruebas que no necesitan datos
 ## Bitácora
 
 - 2026-11-10: inicio. Datos de Olist y Hillstrom ingeridos, hoja de ruta tomada de la ruta Paid Media, decisión 001 planteada.
+- 2026-11-15: sesión 12: servidor MCP, registro de ejecuciones y evals con juez calibrado, decisión 017.
 - 2026-11-15: sesión 11: agente analista de growth (LangGraph + Claude) con aprobación humana, decisión 016.
 - 2026-11-15: sesión 10: MMM con verdad conocida y plan de presupuesto, decisiones 014–015.
 - 2026-11-13: sesión 9: atribución multitoque contra la verdad, decisión 013.

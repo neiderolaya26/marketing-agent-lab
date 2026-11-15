@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "marketing-lab": {
+      "command": ".venv/Scripts/python",
+      "args": ["-m", "growth_lab.servidor_mcp"]
+    }
+  }
+}

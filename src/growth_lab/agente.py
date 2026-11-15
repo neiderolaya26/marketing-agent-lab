@@ -51,7 +51,8 @@ TOLERANCIA_TOTAL = 0.01  # el reparto no puede subir el total más de 1% (decisi
 RUTA_HILOS = db.RAIZ / "data" / "agente" / "hilos.db"
 DECISIONES = db.RAIZ / "docs" / "decisiones.md"
 ESPECIALISTAS = ["captacion", "retencion", "presupuesto"]
-VERSION = "v3"  # v1: primera corrida; v2: búsqueda congelada y decisiones vigentes; v3: objetivo utilidad y total ≤ hoy
+VERSION = "v4"  # v1: primera corrida; v2: búsqueda congelada y decisiones vigentes; v3: objetivo utilidad y total ≤ hoy;
+# v4: propuesta solo si la pregunta pide un reparto (decisión 017, hallazgo del juez)
 CONGELADOS = {"paid_search": "no sube hasta tener la prueba geo (decisión 015)"}  # reglas duras de la decisión 016
 DECISIONES_AREA = {  # decisiones vigentes que cada especialista recibe al inicio (decisión 016)
     "captacion": [2, 4, 5],
@@ -325,6 +326,7 @@ class Encargo(BaseModel):
 class Ruta(BaseModel):
     encargos: list[Encargo]
     fuera_de_alcance: bool
+    pide_reparto: bool
 
 
 class Cambio(BaseModel):
@@ -345,7 +347,8 @@ necesita la pregunta y qué le preguntas a cada uno (concreto, en español):
 - captacion: leads, canales de Olist, valor de un lead, CPL, lead scoring.
 - retencion: segmentos, CLV, churn, experimentos A/B, uplift, campañas y cupones.
 - presupuesto: atribución, MMM, ROI por canal de pauta, repartir o mover presupuesto.
-Usa el mínimo de especialistas. Si la pregunta no tiene que ver con el lab, marca fuera_de_alcance y no encargues nada."""
+Usa el mínimo de especialistas. Si la pregunta no tiene que ver con el lab, marca fuera_de_alcance y no encargues nada.
+Marca pide_reparto solo si la pregunta pide explícitamente repartir, mover o cambiar el presupuesto entre canales."""
 
 SISTEMA_COORDINADOR = """Eres el coordinador de un equipo de analítica de growth. Con los análisis de los
 especialistas, responde la pregunta en español, claro y corto (máximo 250 palabras), para alguien de negocio.
@@ -429,7 +432,7 @@ def correr_especialista(cliente, herr: Herramientas, nombre: str, pregunta: str,
                 salida = fn[u.name](u.input)
                 resultados.append({"type": "tool_result", "tool_use_id": u.id,
                                    "content": json.dumps(salida, ensure_ascii=False)})
-                llamadas.append({"herramienta": u.name, "entrada": u.input, "ok": True})
+                llamadas.append({"herramienta": u.name, "entrada": u.input, "ok": True, "salida": limpio(salida)})
             except Exception as e:  # el error vuelve al modelo (p. ej. un SQL que no es SELECT)
                 resultados.append({"type": "tool_result", "tool_use_id": u.id, "content": f"Error: {e}",
                                    "is_error": True})
@@ -446,14 +449,15 @@ def enrutar(cliente, pregunta: str, modelo: str = MODELO) -> dict:
                 messages=[{"role": "user", "content": pregunta}], output_format=Ruta,
                 output_config={"effort": "low"})
     if r.stop_reason == "refusal" or r.parsed_output is None:
-        return {"encargos": [], "fuera_de_alcance": True}
+        return {"encargos": [], "fuera_de_alcance": True, "pide_reparto": False}
     ruta = r.parsed_output.model_dump()
     vistos, encargos = set(), []
     for e in ruta["encargos"]:  # un encargo por especialista
         if e["especialista"] not in vistos:
             vistos.add(e["especialista"])
             encargos.append(e)
-    return {"encargos": encargos, "fuera_de_alcance": ruta["fuera_de_alcance"] and not encargos}
+    return {"encargos": encargos, "fuera_de_alcance": ruta["fuera_de_alcance"] and not encargos,
+            "pide_reparto": ruta["pide_reparto"]}
 
 
 def coordinar(cliente, estado, modelo: str = MODELO) -> dict:
@@ -528,6 +532,9 @@ def construir(cliente=None, herr: Herramientas | None = None, modelo: str = MODE
 
     def nodo_reglas(estado):
         cambios = estado["coordinador"]["propuesta"]
+        if cambios and not estado["ruta"].get("pide_reparto", True):  # v4: nadie pidió mover plata
+            return {"fallas": [], "simulacion": {},
+                    "coordinador": estado["coordinador"] | {"propuesta": [], "propuesta_descartada": cambios}}
         if not cambios:
             return {"fallas": [], "simulacion": {}}
         sim = herr.simular_reparto(cambios)
@@ -630,14 +637,27 @@ def main() -> None:
     p.add_argument("pregunta")
     p.add_argument("--modelo", default=MODELO, choices=sorted(PRECIOS))
     a = p.parse_args()
+    import time
+
+    from growth_lab import registro
+
     medidor = Medidor(cliente_anthropic(), a.modelo)
     grafo = construir(medidor, modelo=a.modelo)
+    t0 = time.time()
     estado = preguntar(grafo, a.pregunta)
+    uso = {"llamadas": medidor.llamadas, "tokens_entrada": medidor.tokens_entrada,
+           "tokens_salida": medidor.tokens_salida, "costo_usd": medidor.costo_usd()}
+    with registro.conectar() as con:  # decisión 017: toda ejecución queda en data/agente/ejecuciones.db
+        registro.guardar(con, estado, origen="cli", version=VERSION, modelo=a.modelo, uso=uso,
+                         segundos=time.time() - t0)
     if "__interrupt__" in estado:
         pendiente = estado["__interrupt__"][0].value
         print(json.dumps(limpio(pendiente), ensure_ascii=False, indent=1))
         si = input("¿Apruebas el reparto? [s/N] ").strip().lower() in {"s", "si", "sí"}
-        estado = aprobar(grafo, estado["hilo"], si, input("Comentario: ").strip())
+        hilo = estado["hilo"]
+        estado = aprobar(grafo, hilo, si, input("Comentario: ").strip())
+        with registro.conectar() as con:
+            registro.actualizar_firma(con, hilo, estado["final"])
     f = estado["final"]
     print(f"\n[{f['estado']}] especialistas: {', '.join(f['especialistas']) or 'ninguno'}\n")
     print(f["respuesta"])

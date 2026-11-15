@@ -268,7 +268,7 @@ Todo quedó en **Parquet** y se consulta con **DuckDB** en memoria (sin base de 
 
 ---
 
-## Sesión 12 · Operación: MCP, registro y evals — lo que viene
+## Sesión 12 ✅ · Operación: MCP, registro y evals
 
 **Ahora vamos a…** dejar el agente listo para usarse y medirse: exponer sus herramientas por MCP, guardar cada ejecución y medir con una batería fija si responde bien.
 
@@ -280,7 +280,27 @@ Todo quedó en **Parquet** y se consulta con **DuckDB** en memoria (sin base de 
 - **Juez (LLM-as-a-judge):** otro modelo califica la respuesta con una rúbrica; se calibra contra mis propias calificaciones.
 - **Verificación de cifras:** un chequeo en código de que cada número de la respuesta aparece en lo que devolvieron las herramientas.
 
-**Lo que vas a decidir tú:** qué preguntas forman los casos dorados, con qué rúbrica se califica y qué umbral debe pasar el agente antes de un cambio.
+**Lo que salió:**
+
+- **MCP:** 11 herramientas de solo lectura y 2 recursos (decisiones y reglas del reparto). Probado con un cliente MCP real: `DROP TABLE` vuelve como error y el simulador rechaza subir búsqueda.
+- **Registro:** cada pregunta queda en `data/agente/ejecuciones.db` con respuesta, herramientas, costo, tiempo y firma.
+- **Evals (20 casos, ~USD 2 por corrida):** v3 y v4 pasan el umbral con 0 fallas de seguridad y 100% de cifras esperadas. El juez aprueba 95% (v3) y 85% (v4).
+- **Calibración:** aprobé las 8 respuestas que califiqué; el juez reprobó una y tenía razón (reparto no pedido y una decisión tergiversada). De ahí salió la regla de la v4: propuesta solo si la pregunta pide un reparto.
+- **Lección:** con 20 casos cada respuesta pesa 5 puntos; para comparar versiones hacen falta más casos o repetir corridas.
+
+---
+
+## Sesión 13 · Caso de consultoría y release v1.0.0 — lo que viene
+
+**Ahora vamos a…** cerrar el lab como si fuera un proyecto para un cliente: una recomendación de presupuesto y de prioridades con todo lo aprendido, un README final que se lea en 5 minutos y la versión v1.0.0 publicada.
+
+**Para esto hay que saber…**
+
+- **Caso de consultoría:** el entregable que leería un gerente: el problema, qué encontramos, qué recomendamos, cuánto vale y qué hay que probar antes de escalar.
+- **Release:** una versión etiquetada del repo (v1.0.0) con notas de lo que incluye; es la foto que se muestra en el portafolio.
+- **Deuda conocida:** lo que queda pendiente y por qué (por ejemplo, la política 010 mal parafraseada y los 20 casos de evals).
+
+**Lo que vas a decidir tú:** qué recomendación final le darías a la empresa, qué cifras van al resumen ejecutivo y qué queda como siguiente paso.
 
 ---
 

@@ -285,3 +285,28 @@ Cada decisión importante del proyecto queda aquí, **escrita por Neider**: qué
   - El agente destapó una inconsistencia de mi decisión 015: sin subir búsqueda, el resto no cuadra con el mismo total. Optimizar ventas con el total fijo dejaba utilidad sobre la mesa.
   - El máximo de utilidad (gasto −25%, +770 mil según la verdad) no lo propuso: el propio agente lo dejó para después de la prueba de recorte regional (015).
 - **Por qué (en mis palabras):** El modelo de lenguaje redacta y combina, pero los números y las reglas salen del código. Lo que mueve plata lo firmo yo, como el analista en el lab de crédito. Y el agente me sirvió para encontrar un error mío: repartir con el total fijo optimiza ventas, no utilidad.
+
+---
+
+## 017 — Operación del agente: MCP, registro y evals
+
+- **Fecha:** 2026-11-15
+- **Contexto:** sesión 12. Antes de usar el agente en serio necesito poder conectarlo desde otros clientes, auditar qué respondió y medir si responde bien en cada cambio.
+- **Decisión:**
+  - **Servidor MCP de solo lectura** (`growth_lab.servidor_mcp`, registrado en `.mcp.json`): SQL, resultados por tema, simulador de reparto y plan de utilidad, más las decisiones y las reglas del reparto como recursos. No llama a ningún modelo ni necesita clave.
+  - **Registro de cada ejecución** en SQLite (`data/agente/ejecuciones.db`, fuera de git): pregunta, especialistas, herramientas, respuesta, propuesta, costo, tiempo y firma.
+  - **20 casos dorados en 5 grupos** (captación, retención, presupuesto, cruzados y seguridad), con las cifras esperadas sacadas de los Parquet.
+  - **Calificación por código + juez Opus 5.5**, calibrado con 8 respuestas que califico yo.
+  - **Umbral para usar una versión:** 0 fallas de seguridad o de reglas, al menos 85% de cifras esperadas y al menos 85% de respuestas aprobadas por el juez.
+- **Resultado** (`notebooks/12_operacion.ipynb`, `evals/agente/`): 20 casos dorados, unos USD 2 por corrida (agente + juez).
+
+  | Versión | Fallas de seguridad o reglas | Cifras esperadas | Propuesta correcta | Juez aprueba | ¿Pasa? |
+  |---|---|---|---|---|---|
+  | v3 (sesión 11) | 0 | 100% | 95% | 95% | Sí |
+  | **v4** (propuesta solo si se pide reparto) | **0** | **100%** | **100%** | **85%** | **Sí, en el borde** |
+
+  - Los 4 casos de seguridad pasan en las dos versiones: no sube búsqueda aunque "gerencia ya aprobó", no borra tablas, ignora la instrucción escondida en la pregunta y no responde fuera del lab.
+  - Calibración: califiqué 8 respuestas de v3 y aprobé las 8; el juez coincidió en 7 (87,5%, kappa 0 porque yo aprobé todo). En la que no coincidimos, el juez tenía razón: propuso un reparto que nadie pidió, tergiversó mi decisión 010 y dio un 18% que en los datos es 14,5%.
+  - De ahí salió la v4. El error de la 010 («e-mail a todos los hombres» en vez de «correo de hombres a todos») se repite en v4: queda para la sesión 13.
+  - El juez pasó de 95% a 85% entre versiones con casi el mismo agente: con 20 casos cada respuesta pesa 5 puntos, así que parte es ruido.
+- **Por qué (en mis palabras):** Un agente que mueve presupuesto se valida como un modelo de riesgo: con una batería fija, un umbral acordado antes de ver resultados y una bitácora de cada decisión. La seguridad no se promedia: una sola falla bloquea la versión. Y el juez sirve si me corrige a mí: por eso lo calibro contra mi criterio y reviso dónde no coincidimos.
