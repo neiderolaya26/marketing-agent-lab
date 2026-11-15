@@ -225,3 +225,38 @@ Cada decisión importante del proyecto queda aquí, **escrita por Neider**: qué
   - **Atribución con Shapley sobre un modelo de conversión** (`atribucion.METODO_ELEGIDO`), validada contra experimentos y el MMM cuando existan.
   - **Canales baratos:** e-mail (1,97 por conversión, 20 veces menos que búsqueda pagada) se escala con una **prueba controlada**, porque su rendimiento cae con la frecuencia. Orgánica y directo siguen como **costo fijo**, sin ROI de pauta (decisión 004).
 - **Por qué (en mis palabras):** Ninguna regla simple sirve para repartir presupuesto: todas premian al canal que más aparece, no al que más vende. Un modelo que mide cuánto sube la conversión cada canal se acerca a la verdad siete veces más. E-mail es el más barato, pero no infinito: hay que probar cuánto aguanta antes de cargarlo.
+
+---
+
+## 014 — Cómo armar el MMM (antes de ver resultados)
+
+- **Fecha:** 2026-11-15
+- **Contexto:** no hay un MMM público con efectos verdaderos (el benchmark de Heusch 2026 no publica datos), así que genero 156 semanas de ventas y gasto en 5 canales (TV, búsqueda pagada, social, display y e-mail) con arrastre, saturación, estacionalidad y una demanda oculta conocidos (`growth_lab.mmm`).
+- **Decisión:**
+  - **Gasto endógeno moderado** (el gasto sigue a la demanda esperada) **y un escenario limpio** de comparación, para medir cuánto sesgo mete la endogeneidad.
+  - **Priors débiles** (arrastre ~ Beta(2, 3), saturación alrededor del gasto medio, ROI entre 0 y ~10) y **calibración con experimento** solo en e-mail (decisión 013), con su error del 15%.
+  - **Presupuesto:** mismo total, cada canal entre −30% y +30% de lo que gasta hoy (`mmm.LIMITE`), para no salirme del rango que el modelo ya vio.
+- **Por qué (en mis palabras):** Si no sé la verdad, no sé si el MMM acierta. El sesgo que más me preocupa es gastar más cuando igual iba a vender más. Prefiero priors amplios y anclar con un experimento real antes que dejar el modelo suelto.
+
+---
+
+## 015 — Versión del MMM y plan de presupuesto
+
+- **Fecha:** 2026-11-15
+- **Contexto** (`notebooks/10_mmm.ipynb`, `python -m growth_lab.mmm`): 4 versiones del MMM contra la verdad. Escenario endógeno, plan con el mismo total y ±30% por canal:
+
+  | Versión | Error ROI | Ganancia real del plan (miles USD/año) | Captura del óptimo en 10 simulaciones (mediana) | Planes que pierden |
+  |---|---|---|---|---|
+  | Sin priors | 7,30 | −563 | 3% | 5 de 10 |
+  | Priors débiles | 2,45 | −222 | 15% | 4 de 10 |
+  | + experimento de e-mail | 2,12 | −189 (prometía +255) | 34% | 4 de 10 |
+  | **+ indicador de demanda** | **1,53** | **+612** (de +808 posibles) | **83%** | **1 de 10** (−1,7%) |
+
+  - Sin priors el modelo se desboca (error de ROI de 77 incluso sin endogeneidad). Los priors van sobre el **ROI**: si no, una saturación casi plana se confunde con la base.
+  - Sin indicador de demanda, búsqueda sale con ROI 9,3 y display con 4,6 (verdad: 4,8 y 1,2). Con indicador mejora, pero búsqueda sigue inflada: 8,3 [5,5; 9,7].
+  - Al margen, con margen del 30% (equilibrio = ROI en ventas de 3,33), solo e-mail lo pasa con holgura en la verdad (4,5); búsqueda 3,0, TV 2,8, social 2,0 y display 0,9.
+- **Decisión:**
+  - **MMM con priors débiles + experimento de e-mail + indicador de demanda** (`mmm.VERSION_ELEGIDA`).
+  - **Aplicar el plan por partes:** bajo social (−30%) y display (−19%) y subo e-mail (+30%) y TV (+10%) ya. **Búsqueda (+18%) sube solo después de una prueba geográfica** que mida su efecto real.
+  - **Mismo total por ahora** y una **prueba de recorte** en social y display por regiones antes de bajar el presupuesto total.
+- **Por qué (en mis palabras):** El MMM sin control de demanda me hace perder plata mientras me promete ganancia: 4 de cada 10 veces. Con el indicador de demanda acierta la dirección en los 5 canales y captura el 83% de lo posible. Búsqueda sigue inflada porque captura demanda que ya existía, así que eso lo valido con un experimento antes de cargarle más plata. Display sale sobrevalorado tanto en la atribución (sesión 9) como aquí.
