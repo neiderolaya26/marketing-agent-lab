@@ -260,3 +260,28 @@ Cada decisión importante del proyecto queda aquí, **escrita por Neider**: qué
   - **Aplicar el plan por partes:** bajo social (−30%) y display (−19%) y subo e-mail (+30%) y TV (+10%) ya. **Búsqueda (+18%) sube solo después de una prueba geográfica** que mida su efecto real.
   - **Mismo total por ahora** y una **prueba de recorte** en social y display por regiones antes de bajar el presupuesto total.
 - **Por qué (en mis palabras):** El MMM sin control de demanda me hace perder plata mientras me promete ganancia: 4 de cada 10 veces. Con el indicador de demanda acierta la dirección en los 5 canales y captura el 83% de lo posible. Búsqueda sigue inflada porque captura demanda que ya existía, así que eso lo valido con un experimento antes de cargarle más plata. Display sale sobrevalorado tanto en la atribución (sesión 9) como aquí.
+
+---
+
+## 016 — Agente analista de growth
+
+- **Fecha:** 2026-11-15
+- **Contexto:** sesión 11, `growth_lab.agente` (LangGraph + Claude Sonnet 5.5). Quiero poder preguntarle al lab en lenguaje de negocio y que me conteste con las cifras de las sesiones 1–10, sin inventar y sin mover plata sin mi visto bueno.
+- **Decisión:**
+  - **Herramientas:** SQL de solo lectura sobre `data/processed` (la puerta `db.consultar()`) y una herramienta por tema que lee los resultados ya calculados (valor por canal, lead scoring, segmentos y CLV, experimentos y uplift, campañas, atribución, MMM, plan de utilidad y simulador de reparto).
+  - **Arquitectura:** enrutador → especialistas de captación, retención y presupuesto en paralelo → coordinador → reglas en código → aprobación humana.
+  - **Cada especialista recibe las decisiones vigentes de su área** (por ejemplo, retención: 003, 006, 007, 009, 010 y 012) y no las contradice.
+  - **Aprobación humana solo cuando la respuesta propone mover plata** entre canales; las consultas se responden directo.
+  - **Reglas duras del reparto (código, no el modelo):** cada canal entre −30% y +30%, **búsqueda pagada no sube hasta la prueba geo** (015) y el **total puede bajar pero no subir**. El objetivo es **utilidad** (ventas extra × 30% − gasto extra), no ventas.
+- **Resultado** (`notebooks/11_agente.ipynb`): 7 preguntas reales por unos USD 0,33 por corrida (≈ 19 s de mediana por pregunta). Tres versiones de la propuesta de reparto, todas pausadas para mi firma:
+
+  | Versión | Reparto | Utilidad extra (MMM / verdad) | Mi firma |
+  |---|---|---|---|
+  | v1 | TV +10%, búsqueda +18%, social −30%, display −19%, e-mail +30% | +117 / +183 mil | Rechazada: búsqueda no sube sin prueba geo |
+  | v2 | TV +26,5%, búsqueda 0, mismo total | +52 / +131 mil | Rechazada: el objetivo es utilidad, no ventas |
+  | **v3** | **TV +10%, búsqueda 0, social −30%, display −19%, e-mail +30%; 471 mil en reserva** | **+274 / +324 mil** | **Aprobada** |
+
+  - En v1 el especialista de retención priorizó un segmento sin leer mis decisiones; desde v2 cada especialista recibe las decisiones vigentes de su área y prioriza por hogar (007).
+  - El agente destapó una inconsistencia de mi decisión 015: sin subir búsqueda, el resto no cuadra con el mismo total. Optimizar ventas con el total fijo dejaba utilidad sobre la mesa.
+  - El máximo de utilidad (gasto −25%, +770 mil según la verdad) no lo propuso: el propio agente lo dejó para después de la prueba de recorte regional (015).
+- **Por qué (en mis palabras):** El modelo de lenguaje redacta y combina, pero los números y las reglas salen del código. Lo que mueve plata lo firmo yo, como el analista en el lab de crédito. Y el agente me sirvió para encontrar un error mío: repartir con el total fijo optimiza ventas, no utilidad.

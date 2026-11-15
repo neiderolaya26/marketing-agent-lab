@@ -254,6 +254,26 @@ def optimizar(gasto: np.ndarray, theta, lam, beta, limite: float = LIMITE, seman
     return r.x
 
 
+def utilidad(gasto: np.ndarray, mult: np.ndarray, theta, lam, beta, semanas: int = 52) -> float:
+    """Utilidad extra frente a hoy = ventas extra × margen − gasto extra (decisión 016)."""
+    hoy = np.ones(len(CANALES))
+    ventas = ventas_medios(gasto, mult, theta, lam, beta, semanas) - ventas_medios(gasto, hoy, theta, lam, beta, semanas)
+    return ventas * MARGEN - float(((mult - 1) * gasto[-semanas:].sum(axis=0)).sum())
+
+
+def optimizar_utilidad(gasto: np.ndarray, theta, lam, beta, limite: float = LIMITE, techo: dict | None = None,
+                       semanas: int = 52) -> np.ndarray:
+    """Multiplicador por canal que maximiza la utilidad con cada canal en ±límite y el total sin subir.
+    `techo` fija un multiplicador máximo por canal (p. ej. {"paid_search": 1.0} si está congelado)."""
+    total = gasto[-semanas:].sum(axis=0)
+    cotas = [(1 - limite, min(1 + limite, (techo or {}).get(c, np.inf))) for c in CANALES]
+    restr = {"type": "ineq", "fun": lambda m: 1 - (m * total).sum() / total.sum()}
+    escala = total.sum() / 100
+    r = minimize(lambda m: -utilidad(gasto, m, theta, lam, beta, semanas) / escala, np.ones(len(CANALES)),
+                 method="SLSQP", bounds=cotas, constraints=[restr])
+    return r.x
+
+
 # ---------- Corrida completa ----------
 
 def correr(n_boot: int = 100) -> dict[str, pd.DataFrame]:
