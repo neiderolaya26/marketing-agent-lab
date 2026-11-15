@@ -1,6 +1,6 @@
 [project]
 name = "marketing-agent-lab"
-version = "1.1.0"
+version = "1.1.1"
 description = "Analítica de marketing de punta a punta con datos públicos (Olist, Hillstrom): embudo, segmentación, lead scoring, CLV, experimentos, uplift, MMM y un agente analista de growth."
 readme = "README.md"
 license = "MIT"

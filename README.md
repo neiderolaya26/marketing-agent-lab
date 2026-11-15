@@ -1,9 +1,9 @@
 # marketing-agent-lab
 
-> ✅ v1.1.0 · Proyecto construido en 13 sesiones, con cada decisión registrada en [docs/decisiones.md](docs/decisiones.md). · [English summary](README.en.md) · Repo 2 del portafolio (el 1 es `credit-risk-agent-lab`).
+> ✅ v1.1.1 · Proyecto construido en 13 sesiones, con cada decisión registrada en [docs/decisiones.md](docs/decisiones.md). · [English summary](README.en.md) · Repo 2 del portafolio (el 1 es `credit-risk-agent-lab`).
 
 - **Fecha de inicio:** 2026-11-10
-- **Estado:** Terminado, v1.1.0 (2026-11-15). Modo guiado: Neider decide y escribe las decisiones; Claude arma el código y explica
+- **Estado:** Terminado, v1.1.1 (2026-11-15). Modo guiado: Neider decide y escribe las decisiones; Claude arma el código y explica
 
 **Pruébalo:** [demo en vivo](https://marketing-agent-lab.streamlit.app/) (Streamlit, sin LLM) · [ficha del proyecto](https://neiderolaya26.github.io/es/work/marketing-agent-lab/) · [modelos y ficha en Hugging Face](https://huggingface.co/neiderolaya26/marketing-agent-lab) · [datos en Hugging Face](https://huggingface.co/datasets/neiderolaya26/marketing-agent-lab-data)
 
@@ -222,6 +222,7 @@ tests/             pruebas que no necesitan datos
 ## Bitácora
 
 - 2026-11-10: inicio. Datos de Olist y Hillstrom ingeridos, hoja de ruta tomada de la ruta Paid Media, decisión 001 planteada.
+- 2026-11-15: v1.1.1: auditoría; el agente ya no ve la verdad del simulador por ningún camino (herramientas, SQL ni archivos), decisión 020.
 - 2026-11-15: v1.1.0: modelos y datos en Hugging Face, demo en Streamlit y trazas opcionales en LangSmith, decisión 019.
 - 2026-11-15: sesión 13: caso de consultoría, agente v5, README en inglés y versión v1.0.0, decisión 018.
 - 2026-11-15: sesión 12: servidor MCP, registro de ejecuciones y evals con juez calibrado, decisión 017.

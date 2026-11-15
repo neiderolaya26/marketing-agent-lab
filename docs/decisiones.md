@@ -335,3 +335,16 @@ Cada decisión importante del proyecto queda aquí, **escrita por Neider**: qué
   - **Demo en Streamlit** (`demo/streamlit_app.py`), sin LLM: valor por canal, score de leads que el modelo no vio, atribución contra la verdad, simulador de presupuesto con las reglas del agente y los evals. Descarga los modelos del Hub.
   - **LangSmith opcional:** el agente traza solo con `--trazar` o `MARKETING_LAB_TRAZAR=1` y `LANGSMITH_API_KEY` (proyecto `marketing-agent-lab`). No corrí trazas reales para no gastar API.
 - **Por qué (en mis palabras):** Un lab de portafolio tiene que poder probarse sin clonar nada. La demo muestra el método y las reglas sin que nadie gaste un peso en API, y lo que la licencia no deja publicar no se publica.
+
+---
+
+## 020 — Auditoría: el agente no ve la verdad del simulador
+
+- **Fecha:** 2026-11-15
+- **Contexto:** una auditoría externa (PR #15) encontró que el agente veía la utilidad "verdadera" del simulador al simular repartos, un dato que en una empresa real no existe. El PR la quitó de `simular_reparto` y `plan_utilidad`, pero quedaban dos caminos: la herramienta `mmm` (con la ganancia real y el plan "verdad") y el SQL, que podía leer columnas como `roi_verdad` o abrir el Parquet directo con `read_parquet`.
+- **Decisión:**
+  - **El agente no ve nada que solo exista porque los datos son sintéticos:** parámetros, ROI, ganancias y participaciones verdaderas del MMM y del benchmark de atribución. La conexión del agente (`db.conectar(..., sin_verdad=True)`) carga las tablas en memoria sin esas columnas, filas y tablas, y no puede leer archivos; las herramientas y el servidor MCP pasan por la misma conexión.
+  - **Sí ve las métricas de validación**, como el error de cada método de atribución o la captura del óptimo del MMM: son hallazgos del lab registrados en las decisiones 013 y 015. También ve los resultados observados en datos reales, como el gasto real del CLV.
+  - **La verdad la siguen viendo** quien aprueba un reparto, los evals, los notebooks y la demo, siempre rotulada como "solo existe en el lab".
+  - **Ojo con las corridas v1–v3 de la sesión 11:** se hicieron con el agente viendo la verdad. El reparto que aprobé salió del MMM y de mis reglas, no de la verdad, pero lo dejo anotado. Los cambios de la v5 y de esta decisión **no se midieron con evals pagados**.
+- **Por qué (en mis palabras):** Si el agente puede mirar la respuesta correcta, cualquier medición de lo bien que decide queda inflada. Es la fuga de información de un modelo de riesgo, pero en un agente: se cierra en la conexión, no en el prompt.

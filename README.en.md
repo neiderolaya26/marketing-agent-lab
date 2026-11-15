@@ -1,6 +1,6 @@
 # marketing-agent-lab · English summary
 
-> v1.1.0 · An end-to-end growth marketing lab built only on public data, from lead value to budget allocation, with an AI "growth analyst" agent under human control. The full documentation, notebooks and the 18 design decisions are in Spanish: [README.md](README.md) · [docs/decisiones.md](docs/decisiones.md) · [consulting case](docs/caso_consultoria.md).
+> v1.1.1 · An end-to-end growth marketing lab built only on public data, from lead value to budget allocation, with an AI "growth analyst" agent under human control. The full documentation, notebooks and the 20 design decisions are in Spanish: [README.md](README.md) · [docs/decisiones.md](docs/decisiones.md) · [consulting case](docs/caso_consultoria.md).
 
 **Try it:** [live demo](https://marketing-agent-lab.streamlit.app/) (Streamlit, no LLM) · [project page](https://neiderolaya26.github.io/work/marketing-agent-lab/) · [models and model card on Hugging Face](https://huggingface.co/neiderolaya26/marketing-agent-lab) · [data on Hugging Face](https://huggingface.co/datasets/neiderolaya26/marketing-agent-lab-data)
 

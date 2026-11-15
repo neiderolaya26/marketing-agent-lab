@@ -144,3 +144,19 @@ def test_reglas_del_reparto_en_los_bordes():
     assert "límite" in ag.validar_reparto([{"canal": "social", "cambio_pct": -30.5}])[0]
     assert "desconocido" in ag.validar_reparto([{"canal": "radio", "cambio_pct": 5}])[0]
     assert ag.validar_reparto([]) == []
+
+
+def test_ningun_camino_del_agente_llega_a_la_verdad(herr):
+    # decisión 020: ni las herramientas ni el SQL (tampoco read_parquet directo) muestran la verdad
+    for n in ("mmm", "atribucion"):
+        datos = str({k: v for k, v in getattr(herr, n)().items() if k != "nota"})
+        assert "verdad" not in datos and "ganancia_real" not in datos
+    tablas = herr.tablas()
+    assert "agt_demo" not in tablas and "roi_verdad" not in tablas["mmm_roi"]
+    assert not any(c.startswith("gt_") for c in tablas["attr_journeys"])
+    assert herr.sql("SELECT count(*) AS n FROM mmm_presupuesto WHERE plan = 'verdad'")["datos"][0]["n"] == 0
+    for consulta in ("SELECT roi_verdad FROM mmm_roi",
+                     f"SELECT * FROM read_parquet('{(db.PROCESSED / 'mmm_roi.parquet').as_posix()}')"):
+        with pytest.raises(Exception):
+            herr.sql(consulta)
+    assert "roi_est" in tablas["mmm_roi"] and "gasto_real_13s" in tablas["clv_por_segmento"]  # lo demás sigue
