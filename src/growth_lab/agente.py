@@ -209,7 +209,8 @@ class Herramientas:
             return self._mmm
 
     def simular_reparto(self, cambios: list[dict]) -> dict:
-        """Ganancia de un reparto según el MMM y, como esto es un lab, según la verdad del simulador."""
+        """Ganancia de un reparto según el MMM y, como esto es un lab, según la verdad del simulador.
+        La verdad es para quien aprueba y para las evals: el modelo recibe la salida pasada por sin_verdad()."""
         gasto, m = self._modelo_mmm()
         fallas = validar_reparto(cambios, gasto)
         mult = multiplicadores(cambios)
@@ -230,6 +231,19 @@ class Herramientas:
         mult = mmm.optimizar_utilidad(gasto, m.theta, m.lam, m.beta, techo={c: 1.0 for c in CONGELADOS})
         cambios = [{"canal": c, "cambio_pct": round(float((x - 1) * 100), 1)} for c, x in zip(mmm.CANALES, mult)]
         return {"cambios": cambios, "simulacion": self.simular_reparto(cambios)}
+
+
+VERDAD_SIMULADOR = "utilidad_extra_verdad_simulador"
+
+
+def sin_verdad(x):
+    """Quita la verdad del simulador de lo que ve un modelo: sirve para calificar al agente y para la
+    persona que aprueba, no para que el agente optimice contra ella (en un caso real no existe)."""
+    if isinstance(x, dict):
+        return {k: sin_verdad(v) for k, v in x.items() if k != VERDAD_SIMULADOR}
+    if isinstance(x, list):
+        return [sin_verdad(v) for v in x]
+    return x
 
 
 def multiplicadores(cambios: list[dict]) -> np.ndarray:
@@ -273,7 +287,7 @@ COMUNES = [
     ("tablas", "Lista las tablas Parquet disponibles (data/processed) con sus columnas.", _esquema()),
     ("consultar_sql", "Ejecuta un SELECT de DuckDB sobre las tablas (máx. 200 filas). Solo lectura.",
      _esquema({"consulta": {"type": "string", "description": "Una sola sentencia SELECT."}})),
-    ("leer_decision", "Lee el texto de una decisión registrada del lab (1 a 016).",
+    ("leer_decision", "Lee el texto de una decisión registrada del lab (001 a 019).",
      _esquema({"numero": {"type": "integer"}})),
 ]
 PROPIAS = {
@@ -302,7 +316,7 @@ SISTEMA_BASE = """Eres el especialista de {area} de un equipo de analítica de g
 máximo 200 palabras, a la pregunta que te pasa el coordinador.
 Reglas:
 - Toda cifra sale de una herramienta. Si los datos no alcanzan, dilo; no estimes de memoria.
-- Cita de qué herramienta o tabla sale cada cifra y la decisión del lab que aplica (001–016).
+- Cita de qué herramienta o tabla sale cada cifra y la decisión del lab que aplica (001–019).
 - Usa consultar_sql solo si las herramientas de tu área no bastan.
 - Tus recomendaciones respetan las decisiones vigentes de abajo; si los datos sugieren otra cosa, dilo
   como algo a revisar, no como recomendación.
@@ -407,8 +421,8 @@ def funciones(herr: Herramientas, nombre: str) -> dict:
     f = {"tablas": lambda a: herr.tablas(), "consultar_sql": lambda a: herr.sql(a["consulta"]),
          "leer_decision": lambda a: herr.decision(a["numero"])}
     for n, _, _ in PROPIAS[nombre]:
-        f[n] = (lambda a: herr.simular_reparto(a["cambios"])) if n == "simular_reparto" else \
-            (lambda a, n=n: getattr(herr, n)())
+        f[n] = (lambda a: sin_verdad(herr.simular_reparto(a["cambios"]))) if n == "simular_reparto" else \
+            (lambda a, n=n: sin_verdad(getattr(herr, n)()))
     return f
 
 
