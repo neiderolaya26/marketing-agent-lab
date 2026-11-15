@@ -5,7 +5,7 @@
 - **Fecha de inicio:** 2026-11-10
 - **Estado:** Terminado, v1.1.0 (2026-11-15). Modo guiado: Neider decide y escribe las decisiones; Claude arma el código y explica
 
-**Pruébalo:** demo del lab en Streamlit, sin LLM (`demo/streamlit_app.py`) · [modelos y ficha en Hugging Face](https://huggingface.co/neiderolaya26/marketing-agent-lab) · [datos en Hugging Face](https://huggingface.co/datasets/neiderolaya26/marketing-agent-lab-data)
+**Pruébalo:** [demo en vivo](https://marketing-agent-lab.streamlit.app/) (Streamlit, sin LLM) · [ficha del proyecto](https://neiderolaya26.github.io/es/work/marketing-agent-lab/) · [modelos y ficha en Hugging Face](https://huggingface.co/neiderolaya26/marketing-agent-lab) · [datos en Hugging Face](https://huggingface.co/datasets/neiderolaya26/marketing-agent-lab-data)
 
 ## Pregunta de negocio (decisión 001)
 
