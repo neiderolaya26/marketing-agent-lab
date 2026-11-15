@@ -290,7 +290,7 @@ Todo quedó en **Parquet** y se consulta con **DuckDB** en memoria (sin base de 
 
 ---
 
-## Sesión 13 · Caso de consultoría y release v1.0.0 — lo que viene
+## Sesión 13 ✅ · Caso de consultoría y release v1.0.0
 
 **Ahora vamos a…** cerrar el lab como si fuera un proyecto para un cliente: una recomendación de presupuesto y de prioridades con todo lo aprendido, un README final que se lea en 5 minutos y la versión v1.0.0 publicada.
 
@@ -300,11 +300,22 @@ Todo quedó en **Parquet** y se consulta con **DuckDB** en memoria (sin base de 
 - **Release:** una versión etiquetada del repo (v1.0.0) con notas de lo que incluye; es la foto que se muestra en el portafolio.
 - **Deuda conocida:** lo que queda pendiente y por qué (por ejemplo, la política 010 mal parafraseada y los 20 casos de evals).
 
-**Lo que vas a decidir tú:** qué recomendación final le darías a la empresa, qué cifras van al resumen ejecutivo y qué queda como siguiente paso.
+**Lo que salió:**
+
+- El [caso de consultoría](caso_consultoria.md): resumen ejecutivo, hallazgos, recomendación con su valor y confianza, plan de 90 días con tres pruebas y límites.
+- Recomendación: **mover poco y medir**. Reparto v3 (+274 mil de utilidad según el MMM), correo de hombres a todos, leads por score y retención por hogar; el recorte grande espera las pruebas.
+- Agente v5: corrige cómo cita la política 010; no se re-midió con evals pagados (deuda conocida).
+- Versión **v1.0.0** con Release en GitHub y README en inglés.
 
 ---
 
-## Próximas sesiones
+## El lab terminado
+
+En 13 sesiones el lab pasó de los datos crudos a una recomendación de presupuesto: valor de un lead, score, segmentos, CLV, experimentos, uplift, efecto de campañas sin experimento, atribución y MMM con verdad conocida, un agente con aprobación humana y su operación con MCP, registro y evals. Lo que más se repitió: **la cifra que importa es la incremental y neta**, y cuando un modelo no se puede validar con la verdad, se valida con un experimento.
+
+---
+
+## Mapa de sesiones
 
 | Sesión | De qué se trata, en una frase |
 |---|---|
