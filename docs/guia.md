@@ -329,6 +329,14 @@ En 13 sesiones el lab pasó de los datos crudos a una recomendación de presupue
 - **Hugging Face Hub:** el "GitHub de los modelos": guarda archivos de modelos y datos con una ficha que explica cómo se entrenaron y sus límites.
 - **Streamlit Community Cloud:** hospeda gratis una app de Python conectada a un repo de GitHub; se actualiza sola con cada cambio en main.
 - **Trazas (LangSmith):** el registro paso a paso de lo que hizo el agente (qué nodo corrió, qué le preguntó a Claude, qué herramienta usó y cuánto tardó).
+
+---
+
+## v1.1.1 · Auditoría: el agente no ve la verdad
+
+- Una auditoría encontró que el agente podía ver la utilidad "verdadera" del simulador, un dato que en la vida real no existe. Es como un modelo de riesgo que ve la mora futura al entrenar: cualquier medición queda inflada.
+- Ahora el agente consulta una copia de los datos **sin la verdad**, sin columnas, filas ni tablas de verdad, y no puede abrir archivos. La verdad la ven solo la persona que aprueba, los evals y la demo (decisión 020).
+
 ---
 
 ## Mapa de sesiones

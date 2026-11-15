@@ -36,7 +36,6 @@ from typing import Annotated, Literal, TypedDict
 
 import numpy as np
 import pandas as pd
-import pyarrow.parquet as pq
 from pydantic import BaseModel
 
 from growth_lab import db, mmm
@@ -104,22 +103,30 @@ def registros(df: pd.DataFrame) -> list[dict]:
 # ---------- herramientas (código, sin LLM) ----------
 
 class Herramientas:
-    """Todo lo que el agente puede consultar. Solo lee data/processed."""
+    """Todo lo que el agente puede consultar. Solo lee data/processed, sin la verdad del simulador ni del
+    benchmark (decisión 020): las herramientas y el SQL pasan por la misma conexión filtrada."""
 
     def __init__(self):
-        self.con = db.conectar(db.PROCESSED)
+        self.con = db.conectar(db.PROCESSED, sin_verdad=True)
         self._mmm = None
-        self._lock = threading.Lock()
+        self._lock = threading.RLock()  # una conexión DuckDB compartida entre especialistas en paralelo
 
     def _t(self, nombre: str) -> pd.DataFrame:
-        return pd.read_parquet(db.PROCESSED / f"{nombre}.parquet")
+        with self._lock:
+            return self.con.sql(f"SELECT * FROM {nombre}").df()
 
     # comunes
     def tablas(self) -> dict:
-        return {n: [f.name for f in pq.read_schema(p)] for n, p in sorted(db.tablas(db.PROCESSED).items())}
+        with self._lock:
+            filas = self.con.execute("SELECT table_name, column_name FROM information_schema.columns "
+                                     "ORDER BY table_name, ordinal_position").fetchall()
+        out: dict[str, list[str]] = {}
+        for t, c in filas:
+            out.setdefault(t, []).append(c)
+        return out
 
     def sql(self, consulta: str) -> dict:
-        with self._lock:  # una conexión DuckDB compartida entre especialistas en paralelo
+        with self._lock:
             df = db.consultar(self.con, consulta, limite=200)
         return {"filas": len(df), "datos": registros(df)}
 
@@ -179,9 +186,10 @@ class Herramientas:
 
     # presupuesto (sesiones 9 y 10)
     def atribucion(self) -> dict:
-        part = self._t("atr_participacion")[["canal", "verdad", "ultimo_clic", "markov", "shapley_modelo"]]
-        cpc = self._t("atr_costo_por_conversion")[["canal", "verdad", "ultimo_clic", "shapley_modelo"]]
-        return {"nota": "Benchmark sintético con verdad conocida. Método elegido: Shapley sobre modelo (013).",
+        part = self._t("atr_participacion")[["canal", "ultimo_clic", "markov", "shapley_modelo"]]
+        cpc = self._t("atr_costo_por_conversion")[["canal", "ultimo_clic", "shapley_modelo"]]
+        return {"nota": "Benchmark sintético. Método elegido: Shapley sobre modelo (013); error_pp es su error medio "
+                        "frente a la verdad del benchmark, medido en la sesión 9 (la verdad misma no se muestra).",
                 "participacion": registros(part), "costo_por_conversion": registros(cpc),
                 "error_pp": registros(self._t("atr_error")[["metodo", "mae_pp"]])}
 
