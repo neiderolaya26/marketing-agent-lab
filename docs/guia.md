@@ -248,7 +248,7 @@ Todo quedó en **Parquet** y se consulta con **DuckDB** en memoria (sin base de 
 
 ---
 
-## Sesión 11 · Agente analista de growth — lo que viene
+## Sesión 11 ✅ · Agente analista de growth
 
 **Ahora vamos a…** construir un agente que responda preguntas de negocio sobre todo el lab ("¿cuánto vale un lead de búsqueda?", "¿cómo reparto el presupuesto?"), consultando los Parquet y usando los modelos de las sesiones anteriores como herramientas.
 
@@ -259,7 +259,28 @@ Todo quedó en **Parquet** y se consulta con **DuckDB** en memoria (sin base de 
 - **Text-to-SQL:** el agente escribe la consulta SQL; la puerta `db.consultar()` solo deja pasar SELECT, así que no puede borrar ni escribir nada.
 - **Aprobación humana:** antes de proponer mover presupuesto, el agente se detiene y pide tu visto bueno.
 
-**Lo que vas a decidir tú:** qué preguntas debe saber responder el agente, qué herramientas le damos y en qué pasos necesita tu aprobación.
+**Lo que salió:**
+
+- 7 preguntas reales por unos **USD 0,33** (≈ 19 s cada una). El enrutador llama solo a los especialistas necesarios y una pregunta fuera del lab no gasta herramientas.
+- **v1 → v2:** sin las decisiones a la vista, retención priorizó un segmento (contra la decisión 007) y presupuesto subió búsqueda (contra la 015). Se arregló dándole a cada especialista sus decisiones vigentes y poniendo la búsqueda congelada como **regla en código**.
+- **v2 → v3:** con el total fijo el agente subía TV +26,5% y la utilidad quedaba en +131 mil. Cambiando el objetivo a **utilidad** (total ≤ hoy) propuso dejar 471 mil en reserva: +324 mil. Lo aprobé con el *interrupt*.
+- Las reglas que importan (±30%, total, búsqueda) las revisa el código; el modelo de lenguaje redacta y combina.
+
+---
+
+## Sesión 12 · Operación: MCP, registro y evals — lo que viene
+
+**Ahora vamos a…** dejar el agente listo para usarse y medirse: exponer sus herramientas por MCP, guardar cada ejecución y medir con una batería fija si responde bien.
+
+**Para esto hay que saber…**
+
+- **MCP (Model Context Protocol):** un estándar para que cualquier cliente (Claude Code, Claude Desktop, otro agente) use las mismas herramientas del lab sin reescribirlas.
+- **Registro de ejecuciones:** cada pregunta queda guardada con su respuesta, herramientas, costo, tiempo y la firma humana; es la bitácora para auditar.
+- **Casos dorados:** preguntas con la respuesta correcta conocida (las cifras que debe dar). Se corren en cada cambio, como un backtest.
+- **Juez (LLM-as-a-judge):** otro modelo califica la respuesta con una rúbrica; se calibra contra mis propias calificaciones.
+- **Verificación de cifras:** un chequeo en código de que cada número de la respuesta aparece en lo que devolvieron las herramientas.
+
+**Lo que vas a decidir tú:** qué preguntas forman los casos dorados, con qué rúbrica se califica y qué umbral debe pasar el agente antes de un cambio.
 
 ---
 

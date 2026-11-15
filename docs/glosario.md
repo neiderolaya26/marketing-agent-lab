@@ -6,6 +6,7 @@ Términos del lab en palabras simples. Crece en cada sesión. La columna "En cr�
 |---|---|---|
 | **A/B test** | Experimento: se reparte gente al azar entre dos versiones (correo, landing, oferta) y se compara el resultado. Como es al azar, la diferencia es causal | Piloto de política con grupo de control |
 | **Adstock** | El efecto de la publicidad no desaparece el día que se pauta: se arrastra y se va apagando. El MMM lo modela | — |
+| **Agente** | Un modelo de lenguaje que decide qué herramienta usar, lee el resultado y sigue hasta poder responder. En el lab, los números siempre salen de las herramientas | Analista junior con acceso a los sistemas |
 | **AOV** (*average order value*) | Ticket medio: GMV / número de pedidos | Monto medio desembolsado |
 | **ARI** (índice de Rand ajustado) | Mide cuánto coinciden dos agrupaciones de las mismas personas: 1 = idénticas, 0 = como al azar. Lo usamos para ver si K-means da lo mismo con otra semilla | — |
 | **Atribución** | Repartir el mérito de una venta entre los canales que tocó el cliente antes de comprar (vio un anuncio, buscó en Google, abrió un correo) | — |
@@ -21,12 +22,16 @@ Términos del lab en palabras simples. Crece en cada sesión. La columna "En cr�
 | **Display** | Anuncios gráficos (banners) en sitios web | — |
 | **Embudo** (*funnel*) | Las etapas que recorre un prospecto: lead → contrato → vendedor que vende | Solicitud → aprobación → desembolso → buen pago |
 | **η² (eta cuadrado)** | Qué parte de la variación de una cifra (el gasto futuro) explican los grupos (los segmentos). 0,47 = los segmentos explican el 47% | Como el R² de una regresión con una variable categórica |
+| **Enrutador** | El primer paso del agente: decide qué especialistas necesita la pregunta y qué le pregunta a cada uno | Mesa de entrada que reparte las solicitudes |
 | **Gasto endógeno** | Se gasta más cuando ya se espera vender más (temporada, promociones). El MMM lo confunde con efecto de la pauta y la infla | Dar más cupo a los buenos clientes y concluir que el cupo los hace buenos |
 | **GMM** (mezcla de gaussianas) | Clustering "blando": supone que cada grupo es una nube con forma de campana y da la probabilidad de pertenecer a cada uno | — |
 | **GMV** (*gross merchandise value*) | Valor total vendido en la plataforma, antes de comisiones | Monto colocado |
+| **Herramienta (tool)** | Una función de código que el agente puede llamar: una consulta SQL, el valor por canal, el simulador de reparto | — |
 | **Importancia por permutación** | Cuánto empeora el modelo (cae el AUC) si se desordena una variable al azar. Funciona para cualquier modelo | Alternativa a SHAP o al IV |
+| **Interrupt (aprobación humana)** | Pausa del grafo de LangGraph hasta que una persona aprueba o rechaza; el estado queda guardado y se retoma después, incluso desde otro proceso | Firma del analista en el comité de crédito |
 | **K-means** | Clustering que agrupa a los clientes en k grupos, cada uno alrededor de un "centro" (el cliente promedio del grupo) | — |
 | **Landing page** | La página a la que llega quien hace clic en un anuncio; ahí deja sus datos y se vuelve lead | El formulario de solicitud |
+| **LangGraph** | Librería para armar un agente como un grafo de pasos (nodos) con estado, ramas en paralelo y pausas para humanos | — |
 | **Lead** | Un prospecto que dejó sus datos y podría volverse cliente | Una solicitud |
 | **Lead scoring** | Modelo que da a cada lead una probabilidad de cerrar, para que ventas atienda primero a los mejores | Scorecard de originación |
 | **Lift** | Cuántas veces mejor convierte un grupo (el decil 1 del score) que el promedio. Lift 2 = el doble | Lift por deciles (mismo concepto) |
@@ -44,5 +49,7 @@ Términos del lab en palabras simples. Crece en cada sesión. La columna "En cr�
 | **SEO / orgánica** | Tráfico que llega desde Google sin pagar por clic; cuesta contenido y equipo (costo fijo) | — |
 | **Shapley (atribución)** | Reparte el mérito de una conversión según cuánto aporta cada canal en promedio en todas las combinaciones posibles; viene de la teoría de juegos | — |
 | **Silhouette** | Qué tan bien separados están los clusters: cerca de 1 = grupos nítidos, cerca de 0 = se traslapan | — |
+| **Text-to-SQL** | El agente escribe la consulta SQL a partir de la pregunta; aquí solo puede ejecutar SELECT sobre los Parquet publicados | — |
 | **Uplift** | El efecto de contactar a una persona: cuánto sube su probabilidad de comprar **por** el contacto. Sirve para no gastar en quien iba a comprar igual | Efecto de una oferta de retención |
+| **Utilidad extra** | Ventas extra × margen (30%) − gasto extra. Es el objetivo correcto para repartir presupuesto: vender más gastando de más puede restar | Margen financiero neto, no monto colocado |
 | **Validación temporal** | Ajustar con meses pasados y evaluar con meses posteriores | *Out-of-time* (OOT) |
