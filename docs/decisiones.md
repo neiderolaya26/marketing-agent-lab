@@ -323,3 +323,15 @@ Cada decisión importante del proyecto queda aquí, **escrita por Neider**: qué
   - **Agente v5:** la nota de la herramienta dice sin ambigüedad la política 010 (correo de hombres a **todos** los clientes). Va con un test, pero **no la medí con evals pagados**: queda como deuda conocida.
   - **Versión v1.0.0** con etiqueta y Release en GitHub, y un README en inglés para el portafolio.
 - **Por qué (en mis palabras):** Lo seguro (el correo y el score) lo aplico ya; lo que depende de modelos sintéticos (el reparto) lo muevo poco y lo valido con pruebas antes de escalar. Prefiero dejar escrito qué no medí a dar por buena una corrección que no probé.
+
+---
+
+## 019 — Publicar como en el lab de crédito: Hugging Face, Streamlit y LangSmith
+
+- **Fecha:** 2026-11-15
+- **Contexto:** al cerrar la v1.0.0 noté que faltaban las piezas que sí tiene el credit-risk-agent-lab: modelos en Hugging Face, una demo en vivo y trazas del agente. Sin gastar créditos de API.
+- **Decisión:**
+  - **Hugging Face:** publico el lead scoring campeón (logística, Olist, CC BY-NC-SA 4.0) y los parámetros del MMM sintético en [neiderolaya26/marketing-agent-lab](https://huggingface.co/neiderolaya26/marketing-agent-lab), y los 60 Parquet publicables en [un dataset](https://huggingface.co/datasets/neiderolaya26/marketing-agent-lab-data). **El modelo de CLV no se publica:** está entrenado con The Complete Journey, cuya licencia solo permite agregados.
+  - **Demo en Streamlit** (`demo/streamlit_app.py`), sin LLM: valor por canal, score de leads que el modelo no vio, atribución contra la verdad, simulador de presupuesto con las reglas del agente y los evals. Descarga los modelos del Hub.
+  - **LangSmith opcional:** el agente traza solo con `--trazar` o `MARKETING_LAB_TRAZAR=1` y `LANGSMITH_API_KEY` (proyecto `marketing-agent-lab`). No corrí trazas reales para no gastar API.
+- **Por qué (en mis palabras):** Un lab de portafolio tiene que poder probarse sin clonar nada. La demo muestra el método y las reglas sin que nadie gaste un peso en API, y lo que la licencia no deja publicar no se publica.

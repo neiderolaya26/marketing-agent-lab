@@ -117,3 +117,14 @@ def test_nota_de_la_politica_010_no_es_ambigua(herr):
     # hallazgo del juez (sesión 12): el agente decía «e-mail a todos los hombres»
     nota = herr.experimentos_uplift()["nota"]
     assert "TODOS los clientes" in nota and "No es «correo solo a los hombres»" in nota
+
+
+def test_trazas_solo_si_se_piden_y_hay_clave(monkeypatch):
+    monkeypatch.delenv("MARKETING_LAB_TRAZAR", raising=False)
+    monkeypatch.delenv("LANGSMITH_API_KEY", raising=False)
+    assert not ag.quiere_trazas() and not ag.quiere_trazas(True)  # sin clave nunca traza
+    monkeypatch.setenv("LANGSMITH_API_KEY", "x")
+    assert not ag.quiere_trazas()  # con clave, solo si se pide
+    assert ag.quiere_trazas(True)
+    monkeypatch.setenv("MARKETING_LAB_TRAZAR", "1")
+    assert ag.quiere_trazas()

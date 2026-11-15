@@ -1,6 +1,8 @@
 # marketing-agent-lab · English summary
 
-> v1.0.0 · An end-to-end growth marketing lab built only on public data, from lead value to budget allocation, with an AI "growth analyst" agent under human control. The full documentation, notebooks and the 18 design decisions are in Spanish: [README.md](README.md) · [docs/decisiones.md](docs/decisiones.md) · [consulting case](docs/caso_consultoria.md).
+> v1.1.0 · An end-to-end growth marketing lab built only on public data, from lead value to budget allocation, with an AI "growth analyst" agent under human control. The full documentation, notebooks and the 18 design decisions are in Spanish: [README.md](README.md) · [docs/decisiones.md](docs/decisiones.md) · [consulting case](docs/caso_consultoria.md).
+
+**Try it:** Streamlit demo without an LLM (`demo/streamlit_app.py`) · [models and model card on Hugging Face](https://huggingface.co/neiderolaya26/marketing-agent-lab) · [data on Hugging Face](https://huggingface.co/datasets/neiderolaya26/marketing-agent-lab-data)
 
 **In 30 seconds:**
 
@@ -38,7 +40,8 @@ python -m venv .venv && .venv\Scripts\activate
 pip install -r requirements.txt && pip install -e .
 pytest                                  # no downloads needed: uses data/processed/
 python -m growth_lab.servidor_mcp       # read-only MCP tools, no API key
-python -m growth_lab.agente "Is display overrated?"   # needs ANTHROPIC_API_KEY in .env
+python -m growth_lab.agente "Is display overrated?"   # needs ANTHROPIC_API_KEY in .env; --trazar sends LangSmith traces
+streamlit run demo/streamlit_app.py     # demo, no LLM (pip install -r demo/requirements.txt)
 ```
 
 ## Limits

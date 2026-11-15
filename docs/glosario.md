@@ -27,11 +27,13 @@ Términos del lab en palabras simples. Crece en cada sesión. La columna "En cr�
 | **Embudo** (*funnel*) | Las etapas que recorre un prospecto: lead → contrato → vendedor que vende | Solicitud → aprobación → desembolso → buen pago |
 | **η² (eta cuadrado)** | Qué parte de la variación de una cifra (el gasto futuro) explican los grupos (los segmentos). 0,47 = los segmentos explican el 47% | Como el R² de una regresión con una variable categórica |
 | **Enrutador** | El primer paso del agente: decide qué especialistas necesita la pregunta y qué le pregunta a cada uno | Mesa de entrada que reparte las solicitudes |
+| **Ficha del modelo (model card)** | Documento que acompaña a un modelo publicado: con qué datos se entrenó, cómo se midió, para qué sirve y sus límites | Documentación de validación del modelo |
 | **Fidelidad de cifras** | Qué parte de los números de una respuesta sale de lo que devolvieron las herramientas. Los cálculos derivados (sensibilidades) bajan la fidelidad sin ser inventos | — |
 | **Gasto endógeno** | Se gasta más cuando ya se espera vender más (temporada, promociones). El MMM lo confunde con efecto de la pauta y la infla | Dar más cupo a los buenos clientes y concluir que el cupo los hace buenos |
 | **GMM** (mezcla de gaussianas) | Clustering "blando": supone que cada grupo es una nube con forma de campana y da la probabilidad de pertenecer a cada uno | — |
 | **GMV** (*gross merchandise value*) | Valor total vendido en la plataforma, antes de comisiones | Monto colocado |
 | **Herramienta (tool)** | Una función de código que el agente puede llamar: una consulta SQL, el valor por canal, el simulador de reparto | — |
+| **Hugging Face Hub** | Repositorio público de modelos y datos, con su ficha; desde ahí la demo descarga los modelos | — |
 | **Importancia por permutación** | Cuánto empeora el modelo (cae el AUC) si se desordena una variable al azar. Funciona para cualquier modelo | Alternativa a SHAP o al IV |
 | **Interrupt (aprobación humana)** | Pausa del grafo de LangGraph hasta que una persona aprueba o rechaza; el estado queda guardado y se retoma después, incluso desde otro proceso | Firma del analista en el comité de crédito |
 | **Inyección de instrucciones** | Texto escondido en una pregunta o en un dato que intenta darle órdenes al agente ("ignora tus reglas"). Se prueba en los casos de seguridad | Fraude por ingeniería social |
@@ -60,7 +62,9 @@ Términos del lab en palabras simples. Crece en cada sesión. La columna "En cr�
 | **SEO / orgánica** | Tráfico que llega desde Google sin pagar por clic; cuesta contenido y equipo (costo fijo) | — |
 | **Shapley (atribución)** | Reparte el mérito de una conversión según cuánto aporta cada canal en promedio en todas las combinaciones posibles; viene de la teoría de juegos | — |
 | **Silhouette** | Qué tan bien separados están los clusters: cerca de 1 = grupos nítidos, cerca de 0 = se traslapan | — |
+| **Streamlit** | Librería para hacer una app web con Python; Streamlit Community Cloud la hospeda gratis desde un repo de GitHub | — |
 | **Text-to-SQL** | El agente escribe la consulta SQL a partir de la pregunta; aquí solo puede ejecutar SELECT sobre los Parquet publicados | — |
+| **Traza (LangSmith)** | Registro paso a paso de una ejecución del agente: nodos, llamadas al modelo, herramientas y tiempos | Bitácora detallada de un proceso de decisión |
 | **Uplift** | El efecto de contactar a una persona: cuánto sube su probabilidad de comprar **por** el contacto. Sirve para no gastar en quien iba a comprar igual | Efecto de una oferta de retención |
 | **Utilidad extra** | Ventas extra × margen (30%) − gasto extra. Es el objetivo correcto para repartir presupuesto: vender más gastando de más puede restar | Margen financiero neto, no monto colocado |
 | **Validación temporal** | Ajustar con meses pasados y evaluar con meses posteriores | *Out-of-time* (OOT) |
