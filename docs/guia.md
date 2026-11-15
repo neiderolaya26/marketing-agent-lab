@@ -225,7 +225,7 @@ Todo quedó en **Parquet** y se consulta con **DuckDB** en memoria (sin base de 
 
 ---
 
-## Sesión 10 · Marketing Mix Modeling — lo que viene
+## Sesión 10 ✅ · Marketing Mix Modeling
 
 **Ahora vamos a…** estimar, con series **semanales** de ventas y gasto por canal, cuánto aporta cada canal y dónde poner el siguiente peso. Es la mirada "desde arriba", sin seguir a cada cliente.
 
@@ -238,7 +238,28 @@ Todo quedó en **Parquet** y se consulta con **DuckDB** en memoria (sin base de 
 - **Gasto endógeno:** en la vida real se gasta más cuando se espera vender más (temporada alta). Eso hace que el gasto "parezca" más efectivo de lo que es; es el sesgo de selección del MMM.
 - **Por qué datos sintéticos:** para saber si el MMM acierta hay que conocer el efecto verdadero. Generamos las series con efectos conocidos y le pedimos al modelo que los encuentre.
 
-**Lo que vas a decidir tú:** qué tan realista hacer el gasto endógeno, qué *priors* usar y cómo repartir un presupuesto fijo entre canales con el modelo.
+**Lo que salió:**
+
+- Sin *priors* el MMM se desboca: con pocas semanas inventa ROI de dos dígitos. Los *priors* débiles van sobre el **ROI** (como hace Google Meridian), no sobre los coeficientes.
+- Con **gasto endógeno**, el modelo infla búsqueda (ROI 9,3 contra 4,8 real) y display (4,6 contra 1,2). Su plan de presupuesto **pierde** 189 mil mientras promete ganar 255 mil.
+- Un **indicador de demanda** (tipo Google Trends de la categoría) corrige casi todo: el plan gana 612 mil de 808 posibles y en 10 simulaciones captura en mediana el 83% del óptimo. Búsqueda sigue inflada, por eso se valida con una **prueba geográfica**.
+- **ROI marginal:** lo que rinde el próximo peso. Con margen del 30% el equilibrio es 3,33; al margen, solo e-mail lo pasa con holgura.
+- Display sale sobrevalorado tanto en la atribución (sesión 9) como en el MMM: dos miradas distintas, misma conclusión.
+
+---
+
+## Sesión 11 · Agente analista de growth — lo que viene
+
+**Ahora vamos a…** construir un agente que responda preguntas de negocio sobre todo el lab ("¿cuánto vale un lead de búsqueda?", "¿cómo reparto el presupuesto?"), consultando los Parquet y usando los modelos de las sesiones anteriores como herramientas.
+
+**Para esto hay que saber…**
+
+- **Agente:** un modelo de lenguaje que decide qué herramienta usar (consultar datos, correr un modelo) y combina los resultados en una respuesta.
+- **LangGraph:** una librería para armar el agente como un grafo de pasos: entender la pregunta, consultar, analizar, responder.
+- **Text-to-SQL:** el agente escribe la consulta SQL; la puerta `db.consultar()` solo deja pasar SELECT, así que no puede borrar ni escribir nada.
+- **Aprobación humana:** antes de proponer mover presupuesto, el agente se detiene y pide tu visto bueno.
+
+**Lo que vas a decidir tú:** qué preguntas debe saber responder el agente, qué herramientas le damos y en qué pasos necesita tu aprobación.
 
 ---
 

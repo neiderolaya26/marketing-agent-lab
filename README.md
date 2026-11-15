@@ -22,6 +22,7 @@
 | Uplift | En el gasto no hay diferencias medibles entre clientes: personalizar con uplift dio 1,23 USD por cliente contra 1,42 de mandar el correo de hombres a todos. Sí hay persuadibles en la visita del correo de mujeres y en Lenta, donde el X-learner consigue con el 30% del presupuesto 1,6 veces lo que el azar | 010 |
 | Efecto de campañas | La comparación ingenua dice +57% de gasto, pero es selección: corregida con DiD doblemente robusto, las campañas tipo A dan +2,4 USD por hogar y semana [−1,1; +6,0], no distinguible de 0 (los placebos pasan). Medir el efecto que pagaría los cupones exige 4.300–6.000 hogares de control sorteados por campaña | 011–012 |
 | Atribución | Todas las reglas y Markov se equivocan ~2 puntos por canal en la misma dirección (inflan display, castigan búsqueda pagada); Shapley sobre un modelo de conversión baja el error a 0,30. Con último clic, display parece un 32% más barato por conversión de lo que es | 013 |
+| MMM y presupuesto | Con gasto endógeno el MMM infla búsqueda y display y su plan pierde plata (−189 mil); con un indicador de demanda el plan gana +612 mil de +808 posibles y captura el 83% del óptimo en 10 simulaciones | 014–015 |
 | Operación | Los meses con más entregas tarde (nov-2017, feb–mar-2018: 14–21%) son los de peor reseña (correlación mensual −0,81) | — |
 
 ![Valor de un lead por canal](docs/img/embudo_valor_por_lead.png)
@@ -39,6 +40,8 @@
 ![Efecto de campañas: real vs. placebo](docs/img/cmp_efectos.png)
 
 ![Atribución por canal contra la verdad](docs/img/atr_participacion.png)
+
+![MMM: ROI por canal con y sin control de demanda](docs/img/mmm_roi.png)
 
 ## Para aprender
 
@@ -60,7 +63,7 @@ Ningún dataset público trae a la vez embudo, recompra, experimentos y gasto po
 | [Hillstrom MineThatData](https://blog.minethatdata.com/2008/03/minethatdata-e-mail-analytics-and-data.html) | **Experimentos y uplift**: e-mail aleatorizado en 3 brazos | 64.000 clientes | Uso libre en investigación |
 | [Lenta](https://www.uplift-modeling.com/en/latest/api/datasets/fetch_lenta.html) (vía scikit-uplift) | **Uplift a escala**: SMS aleatorizado con 193 variables, chequeo de robustez | 687.029 clientes | Datos de competencia, uso en investigación |
 | [Synthetic attribution benchmark](https://huggingface.co/datasets/lucianfialho/synthetic-attribution-benchmark) | **Atribución**: recorridos multitoque con la atribución Shapley verdadera y costo por toque | 500.000 recorridos | CC BY 4.0 |
-| MMM sintético (sesión 10) | **Presupuesto**: gasto endógeno por canal con efecto verdadero conocido, al estilo de Heusch (2026) | por generar | se genera en el repo |
+| MMM sintético (sesión 10) | **Presupuesto**: ventas y gasto semanal en 5 canales con arrastre, saturación y demanda oculta conocidos, al estilo de Heusch (2026) | 156 semanas × 2 escenarios | se genera en el repo (`growth_lab.mmm`) |
 
 Primeros hechos (`python -m growth_lab.ingest`):
 
@@ -83,7 +86,7 @@ Primeros hechos (`python -m growth_lab.ingest`):
 | 7 ✅ | Uplift | S/T/X-learner, resultado transformado y propensión, cross-fitting, Qini con IC, políticas con IPW, presupuesto parcial (notebook 07) | Hillstrom + Lenta |
 | 8 ✅ | Efecto de campañas y cupones | Ingenuo vs. DiD simple vs. DiD doblemente robusto vs. DML, placebo, estudio de eventos, efecto de equilibrio y tamaño del grupo de control (notebook 08) | Complete Journey |
 | 9 ✅ | Atribución multitoque | 5 reglas, Markov, Shapley con datos y Shapley sobre modelo de conversión contra la verdad; costo por conversión (notebook 09) | Benchmark de atribución |
-| 10 | Marketing Mix Modeling | MMM bayesiano (adstock, saturación), optimización de presupuesto | MMM sintético |
+| 10 ✅ | Marketing Mix Modeling | MMM con priors, calibración con experimento e indicador de demanda contra la verdad; presupuesto con ±30% por canal (notebook 10) | MMM sintético |
 | 11 | Agente "analista de growth" | LangGraph: text-to-SQL sobre DuckDB + modelos como herramientas + aprobación humana del presupuesto | Todas |
 | 12 | Operación | Servidor MCP, registro de ejecuciones, evals (casos dorados, juez) | Todas |
 | 13 | Caso de consultoría | Recomendación de presupuesto, demo, README final, release v1.0.0 | Todas |
@@ -153,7 +156,7 @@ db.consultar(con, "SELECT origin, count(*) AS leads FROM marketing_qualified_lea
 | `hillstrom` | MineThatData | — |
 | `attr_journeys`, `attr_touchpoints` | Benchmark de atribución, CC BY 4.0 | — |
 
-Derivados por sesión: `embudo_canal`, `cohortes_compradores` y `kpis_mensuales` (sesión 2, `python -m growth_lab.embudo`); `segmentos_perfil` y `segmentos_comparacion` (sesión 3, `python -m growth_lab.segmentacion`, solo agregados de segmentos con ≥ 20 hogares); `leads_optuna`, `leads_metricas`, `leads_deciles`, `leads_importancia`, `leads_score`, `leads_estabilidad`, `leads_coeficientes`, `leads_cpu_vs_gpu` y `canales_rentabilidad` (sesión 4, `python -m growth_lab.leads_modelos 40` y `python -m growth_lab.leads`); `clv_metricas`, `clv_deciles`, `clv_churn`, `clv_churn_importancia`, `clv_parametros` y `clv_por_segmento` (sesión 5, `python -m growth_lab.clv`, solo agregados); `exp_balance`, `exp_potencia`, `exp_efectos`, `exp_cuped`, `exp_peeking`, `exp_secuencial`, `exp_bayes` y `exp_economia` (sesión 6, `python -m growth_lab.experimentos`); `upl_qini`, `upl_metricas` y `upl_politicas` (sesión 7, `python -m growth_lab.uplift`; de Lenta solo curvas y métricas); `cmp_efectos`, `cmp_evento` y `cmp_economia` (sesión 8, `python -m growth_lab.campanas`, solo agregados); `atr_participacion`, `atr_error` y `atr_costo_por_conversion` (sesión 9, `python -m growth_lab.atribucion`).
+Derivados por sesión: `embudo_canal`, `cohortes_compradores` y `kpis_mensuales` (sesión 2, `python -m growth_lab.embudo`); `segmentos_perfil` y `segmentos_comparacion` (sesión 3, `python -m growth_lab.segmentacion`, solo agregados de segmentos con ≥ 20 hogares); `leads_optuna`, `leads_metricas`, `leads_deciles`, `leads_importancia`, `leads_score`, `leads_estabilidad`, `leads_coeficientes`, `leads_cpu_vs_gpu` y `canales_rentabilidad` (sesión 4, `python -m growth_lab.leads_modelos 40` y `python -m growth_lab.leads`); `clv_metricas`, `clv_deciles`, `clv_churn`, `clv_churn_importancia`, `clv_parametros` y `clv_por_segmento` (sesión 5, `python -m growth_lab.clv`, solo agregados); `exp_balance`, `exp_potencia`, `exp_efectos`, `exp_cuped`, `exp_peeking`, `exp_secuencial`, `exp_bayes` y `exp_economia` (sesión 6, `python -m growth_lab.experimentos`); `upl_qini`, `upl_metricas` y `upl_politicas` (sesión 7, `python -m growth_lab.uplift`; de Lenta solo curvas y métricas); `cmp_efectos`, `cmp_evento` y `cmp_economia` (sesión 8, `python -m growth_lab.campanas`, solo agregados); `atr_participacion`, `atr_error` y `atr_costo_por_conversion` (sesión 9, `python -m growth_lab.atribucion`); `mmm_series`, `mmm_roi`, `mmm_error`, `mmm_presupuesto`, `mmm_presupuesto_resumen` y `mmm_robustez` (sesión 10, `python -m growth_lab.mmm`).
 
 Complete Journey y Lenta no se publican por licencia: solo sus agregados y resultados.
 
@@ -172,6 +175,7 @@ tests/             pruebas que no necesitan datos
 ## Bitácora
 
 - 2026-11-10: inicio. Datos de Olist y Hillstrom ingeridos, hoja de ruta tomada de la ruta Paid Media, decisión 001 planteada.
+- 2026-11-15: sesión 10: MMM con verdad conocida y plan de presupuesto, decisiones 014–015.
 - 2026-11-13: sesión 9: atribución multitoque contra la verdad, decisión 013.
 - 2026-11-13: sesión 8: efecto de campañas sin experimento, decisiones 011–012.
 - 2026-11-13: sesión 7: uplift con Hillstrom y Lenta, decisión 010.

@@ -15,11 +15,13 @@ Términos del lab en palabras simples. Crece en cada sesión. La columna "En cr�
 | **Cohorte** | Grupo que empezó en el mismo período (mes de primera compra) y se sigue en el tiempo | Cosecha |
 | **Comisión** | Lo que Olist se queda de cada venta de un vendedor. No es pública; suponemos 15% | Tasa / margen financiero |
 | **Contrato maduro** | Un contrato con al menos 90 días observables después de firmar; solo esos entran al valor por lead | Préstamo con ventana de desempeño completa |
+| **Control de demanda** | Una serie que se mueve con la demanda (búsquedas de la categoría en Google Trends, por ejemplo). En el MMM evita que la venta que iba a llegar igual se le atribuya a la pauta | Controlar por el ciclo económico al medir una política |
 | **CPL** (costo por lead) | Cuánto se paga por cada lead | Costo por solicitud |
 | **CPL de equilibrio** | El máximo que puedes pagar por un lead sin perder plata = ingreso esperado por lead | Tasa de equilibrio (ROI = 0) |
 | **Display** | Anuncios gráficos (banners) en sitios web | — |
 | **Embudo** (*funnel*) | Las etapas que recorre un prospecto: lead → contrato → vendedor que vende | Solicitud → aprobación → desembolso → buen pago |
 | **η² (eta cuadrado)** | Qué parte de la variación de una cifra (el gasto futuro) explican los grupos (los segmentos). 0,47 = los segmentos explican el 47% | Como el R² de una regresión con una variable categórica |
+| **Gasto endógeno** | Se gasta más cuando ya se espera vender más (temporada, promociones). El MMM lo confunde con efecto de la pauta y la infla | Dar más cupo a los buenos clientes y concluir que el cupo los hace buenos |
 | **GMM** (mezcla de gaussianas) | Clustering "blando": supone que cada grupo es una nube con forma de campana y da la probabilidad de pertenecer a cada uno | — |
 | **GMV** (*gross merchandise value*) | Valor total vendido en la plataforma, antes de comisiones | Monto colocado |
 | **Importancia por permutación** | Cuánto empeora el modelo (cae el AUC) si se desordena una variable al azar. Funciona para cualquier modelo | Alternativa a SHAP o al IV |
@@ -29,11 +31,16 @@ Términos del lab en palabras simples. Crece en cada sesión. La columna "En cr�
 | **Lead scoring** | Modelo que da a cada lead una probabilidad de cerrar, para que ventas atienda primero a los mejores | Scorecard de originación |
 | **Lift** | Cuántas veces mejor convierte un grupo (el decil 1 del score) que el promedio. Lift 2 = el doble | Lift por deciles (mismo concepto) |
 | **Calidad del lead** | Probabilidad de cerrar × valor esperado si cierra (propensión × valor) | PD × pérdida, pero al revés: aquí se suma valor |
+| **MAP** | Estimación que busca los parámetros más probables combinando los datos con los *priors*. Es la versión de un solo punto de un modelo bayesiano | — |
 | **MMM** (*marketing mix modeling*) | Regresión sobre series semanales de ventas y gasto por canal para estimar cuánto aporta cada canal y dónde poner el siguiente peso | — |
 | **MQL** (*marketing qualified lead*) | Lead que marketing considera calificado y pasa a ventas | Solicitud que pasa los filtros mínimos |
 | **Optuna** | Librería que prueba combinaciones de hiperparámetros de forma inteligente (TPE: aprende de los intentos anteriores) | La misma del lab de crédito |
+| **Prior** | Lo que se cree razonable antes de ver los datos (por ejemplo, que el ROI de un canal está entre 0 y 10). Evita que el modelo invente valores absurdos cuando hay pocos datos | Juicio experto en un scorecard con pocos malos |
+| **Prueba geográfica** | Experimento por regiones: se apaga o sube un canal en unas regiones y se mantiene en otras, y se comparan las ventas. Mide el efecto real de un canal sin seguir a cada cliente | Piloto de política en unas sucursales |
 | **RFM** | Segmentación clásica de clientes por **R**ecencia (días desde la última compra), **F**recuencia (cuántas compras) y **M**onto (cuánto gastó) | Comportamiento de pago reciente |
 | **ROI incremental** | Valor que trajo la acción **y que no habría ocurrido sin ella**, dividido por lo que costó | ROI ajustado por riesgo |
+| **ROI marginal** | Lo que rinde el **próximo** peso invertido en un canal, no el promedio de todo lo gastado. Es el que manda para mover presupuesto | Rentabilidad del siguiente tramo de cupo |
+| **Saturación** | Cada peso adicional en un canal rinde menos que el anterior; pasado cierto gasto, más inversión casi no suma | Rendimientos decrecientes del cupo |
 | **SEO / orgánica** | Tráfico que llega desde Google sin pagar por clic; cuesta contenido y equipo (costo fijo) | — |
 | **Shapley (atribución)** | Reparte el mérito de una conversión según cuánto aporta cada canal en promedio en todas las combinaciones posibles; viene de la teoría de juegos | — |
 | **Silhouette** | Qué tan bien separados están los clusters: cerca de 1 = grupos nítidos, cerca de 0 = se traslapan | — |
